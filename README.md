@@ -4,12 +4,12 @@ Communication protocol between an Arduino Board and Dynamixel Servo XL-320/Ax-12
 Implementation of the XL-320 library is independent of the AX-12A library and vice versa.
 
 To be able to compile include both
-#include <DNXServo.h>
+<code> #include <DNXServo.h> </code>
 
 and the specific library you need
-#include <XL320.h>
+<code> #include <XL320.h> </code>
 and/or
-#include <AX12A.h>
+<code> #include <AX12A.h> </code>
 
 in your arduino sketch.
 
