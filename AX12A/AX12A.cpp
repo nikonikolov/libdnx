@@ -10,8 +10,8 @@ AX12A::AX12A(HardwareSerial& port, long int baud):
 const unsigned char AX12A::two_byte[11] = { 0, 6, 8, 14, 30, 32, 34, 36, 38, 40, 48 };
 
 // Length of address
-int AX12A::adr_length(int address) {
-	return DNXServo::adr_length(address, two_byte);
+int AX12A::addrLength(int address) {
+	return DNXServo::addrLength(address, two_byte);
 }
 
 // Dynamixel Communication 1.0 Checksum
@@ -47,10 +47,12 @@ int AX12A::statusError(unsigned char* buf, int n) {
 
 	unsigned char checksum=update_crc(buf, n-1);
 	// The last byte does not get included in the checksum
-	if(checksum!=buf[n]){
+	if(checksum != buf[n-1]){
 		flush();
 		Serial.println("WRONG RETURN CHECKSUM");
 		packetPrint(n, buf);
+		Serial.print("CHECKSUM READ IS ");
+		Serial.println(checksum, HEX);
 		return -1;
 	}
 
@@ -124,7 +126,7 @@ int AX12A::send(int ID, int bytes, unsigned char* parameters, unsigned char ins)
 	Serial.println("- Reading");
 	int n = read(ID, reply_buf);
 	if (n == 0) {
-		Serial.println("Could not read status packet");
+		Serial.println("Could not read status packet. Zero bytes read");
 		return 0;
 	}
 
@@ -141,7 +143,7 @@ int AX12A::dataPack(unsigned char ins, unsigned char ** parameters, int address,
 
 	unsigned char* data; 
 	
-	int adrl = adr_length(address);
+	int adrl = addrLength(address);
 
 	int size;
 	if (ins == AX_INS_Write) size = adrl+1;
@@ -190,7 +192,6 @@ int AX12A::dataPull(int ID, int address){
     int bytes = dataPack(AX_INS_Read, &parameters, address);
 
     int size = parameters[1];
-   // unsigned char buf[(11+size)] = {0};
    	
    	int ec = send(ID, bytes, parameters, AX_INS_Read);
 
@@ -214,9 +215,9 @@ int AX12A::dataPull(int ID, int address){
 
 
 // SetBaud
-// 0: 9600, 1:57600, 2:115200, 3:1Mbps
+// 1: 1Mbps, 3: 500 000, 4: 400 000, 7: 250 000, 9: 200 000, 16: 115200, 34: 57600, 103: 19200, 207: 9600
 int AX12A::SetBaud(int ID, int rate) {
-	if ( rate != 1 || rate != 3 || rate != 4 || rate != 7 || rate != 9 || rate != 16  || rate != 34 || rate != 103 || rate != 207 ) {
+	if ( rate != 1 && rate != 3 && rate != 4 && rate != 7 && rate != 9 && rate != 16  && rate != 34 && rate != 103 && rate != 207 ) {
 		Serial.println("Incorrect baud rate");
 		return 1;
 	}
@@ -239,10 +240,15 @@ int AX12A::SetLED(int ID, int value){
 
 
 // SetGoalPosition
-// 1023 = -150 degrees, 512 = 0 degrees (ORIGIN), 0 = +150 degrees
+// 1024 = -150 degrees CCW, 512 = 0 degrees (ORIGIN), 0 = +150 degrees CW
 int AX12A::SetGoalPosition(int ID, int angle){
 	return dataPush(ID, AX_GOAL_POSITION, angle);
 }
+
+int AX12A::SetGoalPosition(int ID, double angle){
+	return dataPush(ID, AX_GOAL_POSITION, angleScale(angle));
+}
+
 
 
 int AX12A::SetGoalVelocity(int ID, int velocity){

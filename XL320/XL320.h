@@ -22,6 +22,7 @@ public:
     int SetP(int ID, int value);
 	int SetI(int ID, int value);
 	int SetD(int ID, int value);
+	int SetGoalPosition(int ID, double angle);
 	int SetGoalPosition(int ID, int angle);
 	int SetGoalVelocity(int ID, int velocity);
 	int SetGoalTorque(int ID, int torque);
@@ -32,7 +33,7 @@ private:
 	unsigned short update_crc(unsigned short crc_accum, unsigned char *data_blk_ptr, unsigned short data_blk_size);
 	int length(unsigned char* buf);
 
-	int adr_length(int address);
+	int addrLength(int address);
 	int statusError(unsigned char* buf, int n);
 	int send(int ID, int bytes, unsigned char* parameters, unsigned char ins);
 

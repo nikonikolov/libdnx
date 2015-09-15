@@ -12,5 +12,3 @@ and/or
 <code>AX12A.h</code>
 
 in your arduino sketch.
-
-

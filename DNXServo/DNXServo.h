@@ -7,7 +7,7 @@ class DNXServo{
 
 public:
 
-	DNXServo(HardwareSerial& port, long int baud);
+	DNXServo(HardwareSerial& port, const long int& baud);
 
 	unsigned char getPort() const;
 
@@ -19,14 +19,15 @@ public:
     virtual int SetReturnLevel(int ID, int lvl) =0;
     virtual int SetLED(int ID, int colour) =0; 
 	virtual int SetGoalPosition(int ID, int angle) =0;
+	virtual int SetGoalPosition(int ID, double angle) =0;
 	virtual int SetGoalVelocity(int ID, int velocity) =0;
 	virtual int SetGoalTorque(int ID, int torque) =0;
 	virtual int SetPunch(int ID, int punch) =0;
 
 protected:
 	
-
-	int adr_length(int address, const unsigned char * two_byte);
+	int angleScale(const double& angle);
+	int addrLength(int address, const unsigned char * two_byte);
 	void packetPrint(int bytes, unsigned char* buf);
 	
 	void flush();
@@ -42,7 +43,7 @@ protected:
 	virtual int dataPull(int ID, int address) =0;
 
 	// REPLY BUFFER
-    unsigned char reply_buf[255];
+    unsigned char reply_buf[32];		// Find out optimal size
 
     HardwareSerial* _port;
     unsigned char _port_num;
@@ -52,7 +53,8 @@ protected:
 };
 
 // Control table: Only matching addresses are included
-#define DNXServo_ID 						3
+#define DNXSERVO_ID 						3
+#define DNXSERVO_BAUD 						4
 
 // ID
 const unsigned char ID_Broadcast = 0xFE; // 254(0xFE) ID writes to all servos on the line

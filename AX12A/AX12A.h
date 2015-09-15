@@ -16,7 +16,8 @@ public:
     //int Test(int ID);
     int SetBaud(int ID, int rate);
     int SetReturnLevel(int ID, int lvl);
-    int SetLED(int ID, int colour); 
+    int SetLED(int ID, int colour);
+	int SetGoalPosition(int ID, double angle); 
 	int SetGoalPosition(int ID, int angle);
 	int SetGoalVelocity(int ID, int velocity);
 	int SetGoalTorque(int ID, int torque);
@@ -26,7 +27,7 @@ private:
 
 	unsigned char update_crc(unsigned char *data_blk_ptr, unsigned short data_blk_size);	
 
-	int adr_length(int address);
+	int addrLength(int address);
 	int statusError(unsigned char* buf, int n);
 	int send(int ID, int bytes, unsigned char* parameters, unsigned char ins);
 

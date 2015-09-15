@@ -63,8 +63,8 @@ int XL320::length(unsigned char* buf) {
 
 
 // Length of address
-int XL320::adr_length(int address) {
-	return DNXServo::adr_length(address, two_byte);
+int XL320::addrLength(int address) {
+	return DNXServo::addrLength(address, two_byte);
 }
 
 
@@ -224,7 +224,7 @@ int XL320::dataPack(unsigned char ins, unsigned char ** parameters, int address,
 
 	unsigned char* data; 
 	
-	int adrl = adr_length(address);
+	int adrl = addrLength(address);
 
 	int size;
 	if (ins == XL_INS_Write) size = adrl+2;
@@ -254,7 +254,7 @@ int XL320::dataPack(unsigned char ins, unsigned char ** parameters, int address,
 
 // dataPush is a generic wrapper for single value SET instructions for public methods
 int XL320::dataPush(int ID, int address, int value){
-	flush(); // Flush reply															//Remove
+	flush(); // Flush reply	for safety
 	
 	unsigned char* parameters;
     int bytes = dataPack(XL_INS_Write, &parameters, address, value);
@@ -269,7 +269,7 @@ int XL320::dataPush(int ID, int address, int value){
 
 // dataPull is a generic wrapper for single value GET instructions for public methods
 int XL320::dataPull(int ID, int address){
-	flush(); // Flush reply															//Remove
+	flush(); // Flush reply	for safety
 	
 	unsigned char* parameters;
     int bytes = dataPack(XL_INS_Read, &parameters, address);
@@ -300,7 +300,6 @@ int XL320::dataPull(int ID, int address){
 
 // Ping
 int XL320::Ping(int ID /*=1*/){
-	//unsigned char pong[15] = {0};
 
 	int ec = send(ID, 0, NULL, XL_INS_Ping);
 	Serial.print(" - ec ");
@@ -374,9 +373,13 @@ int XL320::SetD(int ID, int value){
 
 
 // SetGoalPosition
-// 1023 = -150 degrees, 512 = 0 degrees (ORIGIN), 0 = +150 degrees
+// 1024 = -150 degrees CCW, 512 = 0 degrees (ORIGIN), 0 = +150 degrees CW
 int XL320::SetGoalPosition(int ID, int angle){
 	return dataPush(ID, XL_GOAL_POSITION_L, angle);
+}
+
+int XL320::SetGoalPosition(int ID, double angle){
+	return dataPush(ID, XL_GOAL_POSITION_L, angleScale(angle));
 }
 
 

@@ -1,10 +1,11 @@
 #include "DNXServo.h"
 
-DNXServo::DNXServo(HardwareSerial& port, long int baud){
+DNXServo::DNXServo(HardwareSerial& port, const long int& baud):
+	_port(&port), _baud(baud) {
 
-	_port=&port;
-	_baud = baud;
-	_bitPeriod = 1.0/_baud;
+	//_port=&port;
+	//_baud = baud;
+	_bitPeriod = 1000000.0/_baud;
 	
 	if(_port==&Serial1) _port_num=1;
 	else if(_port==&Serial2) _port_num=2;
@@ -17,10 +18,11 @@ DNXServo::DNXServo(HardwareSerial& port, long int baud){
 	Serial.print(_port_num);
 	Serial.print(" started at ");
 	Serial.print(_baud);
-	Serial.println(" baud rate");	
+	Serial.print(" baud rate and ");	
+	Serial.print(_bitPeriod);
+	Serial.println(" bit period");
 }
 
-//unsigned char DNXServo::reply_buf[255] = {0};
 
 unsigned char DNXServo::getPort() const{
 	return _port_num;
@@ -47,7 +49,7 @@ void DNXServo::flush() {
 
 
 // Length of address
-int DNXServo::adr_length(int address, const unsigned char * two_byte) {
+int DNXServo::addrLength(int address, const unsigned char * two_byte) {
 	bool found=false;
 	
 	for(int i=0; i<11 && !found; i++){
@@ -56,6 +58,18 @@ int DNXServo::adr_length(int address, const unsigned char * two_byte) {
 	
 	if(found) return 2;
 	else return 1;
+}
+
+
+// CW - positive input, CCW - negative input
+int DNXServo::angleScale(const double& angle){
+	
+	// 2.61799387799 rad = 150 degrees
+	int result = 512 - ((angle/2.61799387799)*512);
+
+	if (result>1024) return 1024;
+	else if (result<0) return 0; 
+	else return result;
 }
 
 
@@ -75,7 +89,7 @@ void DNXServo::write(unsigned char* buf, int n) {
 
 
 // Read reply returns payload length, 0 if error.
-int DNXServo::read(int ID, unsigned char* buf, int nMax /* =255 */) {									//check readBytesUntil()
+int DNXServo::read(int ID, unsigned char* buf, int nMax /* =255 */) {			//check readBytesUntil()
 
 	int n = 0; 		 	// Bytes read
 	int timeout = 0; 	// Timeout
@@ -107,7 +121,7 @@ int DNXServo::read(int ID, unsigned char* buf, int nMax /* =255 */) {									//
 
 // SetID
 int DNXServo::SetID(int ID, int newID){
-    return dataPush(ID, DNXServo_ID, newID);
+    return dataPush(ID, DNXSERVO_ID, newID);
 };
 
 // Read Value from Control Table
