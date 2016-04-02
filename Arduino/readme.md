@@ -15,8 +15,9 @@ or both, depending on what servos you want to communicate with.
 
 Initializing a servo object:
 
-`int baud_rate = 115200;
-XL320 ServoXL320(Serial1, baud_rate); 	// Automatically starts Serial1 at the specified baud rate`
+<pre><code>int baud_rate = 115200;
+XL320 ServoXL320(Serial1, baud_rate); 	// Automatically starts Serial1 at the specified baud rate
+</code></pre>
 
 Note that this assumes your physical servo has the same baud rate already set.
 If this is not the case, you can use the member method in the XL320 class 
@@ -28,9 +29,10 @@ of the Arduino.
 
 Reading data from the RAM or the EEPROM tables of a servo:
 
-`int address = XL_BAUD_RATE;
+<pre><code>int address = XL_BAUD_RATE;
 int ID = 1; 					// Use the ID of the servo you want to communicate to
-int baud_rate_read = ServoXL320.GetValue(ID, address);`
+int baud_rate_read = ServoXL320.GetValue(ID, address);
+</code></pre>
 
 Setting the position of the servo:
 `ServoXL320.SetGoalPosition(ID, 512);`
