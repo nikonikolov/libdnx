@@ -11,37 +11,42 @@ class XL320 : public DNXServo {
 public:
  	
  	// Create Dynamixel Communication protocol 2.0
-    XL320(HardwareSerial& port, long int baud);
+    XL320(HardwareSerial& portIn, const long int& baudIn, const int& DebugLvlIn =0);
 
-    int Test(int ID);
-    int Ping(int ID=1);
-    int SetBaud(int ID, int rate);
-    int SetReturnLevel(int ID, int lvl);
-    int SetLED(int ID, int colour); 
-    int Rainbow(int ID);
-    int SetP(int ID, int value);
-	int SetI(int ID, int value);
-	int SetD(int ID, int value);
-	int SetGoalPosition(int ID, double angle);
-	int SetGoalPosition(int ID, int angle);
-	int SetGoalVelocity(int ID, int velocity);
-	int SetGoalTorque(int ID, int torque);
-	int SetPunch(int ID, int punch);
+    ~XL320();
+    
+    int SetBaud(const int& ID, const int& rate);
+    int SetReturnLevel(const int& ID, const int& lvl);
+
+	int SetGoalPosition(const int& ID, const double& angle);
+	int SetGoalPosition(const int& ID, const int& angle);
+	int SetGoalVelocity(const int& ID, const int& velocity);
+	int SetGoalTorque(const int& ID, const int& torque);
+	int SetPunch(const int& ID, const int& punch);			// Sets the current to drive the motors
+    
+    int SetP(const int& ID, const int& value);
+	int SetI(const int& ID, const int& value);
+	int SetD(const int& ID, const int& value);
+
+	//int Test(const int& ID);
+    int Ping(const int& ID=1);
+    int SetLED(const int& ID, const int& colour); 
+    int Rainbow(const int& ID);
 
 private:
 	
-	unsigned short update_crc(unsigned short crc_accum, unsigned char *data_blk_ptr, unsigned short data_blk_size);
-	int length(unsigned char* buf);
+	unsigned short update_crc(unsigned short crc_accum, unsigned char *data_blk_ptr, const unsigned short& data_blk_size);
+	int PacketLength(unsigned char* buf);				// Returns length of packet
 
-	int addrLength(int address);
-	int statusError(unsigned char* buf, int n);
-	int send(int ID, int bytes, unsigned char* parameters, unsigned char ins);
+	int AddressLenght(const int& address);				// Returns length of an address in the Motor Control Table
+	int statusError(unsigned char* buf, const int& n);
+	int send(const int& ID, const int& bytes, unsigned char* parameters, const unsigned char& ins);
 
-	int dataPack(unsigned char ins, unsigned char ** parameters, int address, int value =0);
-	int dataPush(int ID, int address, int value);
-	int dataPull(int ID, int address);
+	int dataPack(const unsigned char& ins, unsigned char ** parameters, const int& address, const int& value =0);
+	int dataPush(const int& ID, const int& address, const int& value);
+	int dataPull(const int& ID, const int& address);
     
-	static const unsigned char two_byte[11];
+	static const unsigned char TWO_BYTE_ADDRESSES[11];
 
 };
 
@@ -83,6 +88,8 @@ private:
 #define XL_MOVING 49
 #define XL_HARDWARE_ERROR 50
 #define XL_PUNCH 51
+
+const unsigned char XL_ID_Broadcast = 0xFE; 	// 254(0xFE) ID writes to all servos on the line
 
 // INSTRUCTIONS
 const unsigned char XL_INS_Ping = 0x01;         // Corresponding device ID command to check if packet reaches

@@ -3,39 +3,41 @@
 #ifndef AX12A_H
 #define AX12A_H
 
-//#include <DNXServo.h>
-#include "../DNXServo/DNXServo.h"
+#include "DNXServo.h"
 
 class AX12A : public DNXServo{
  
 public:
  	
  	// Create Dynamixel Communication protocol 2.0
-    AX12A(HardwareSerial& port, long int baud);
+    AX12A(mbed::Serial* portIn, const int& baudIn, const int ReturnLvlIn = 1);
 
-    //int Test(int ID);
-    int SetBaud(int ID, int rate);
-    int SetReturnLevel(int ID, int lvl);
-    int SetLED(int ID, int colour);
-	int SetGoalPosition(int ID, double angle); 
-	int SetGoalPosition(int ID, int angle);
-	int SetGoalVelocity(int ID, int velocity);
-	int SetGoalTorque(int ID, int torque);
-	int SetPunch(int ID, int punch);
+	~AX12A();
+
+    int SetBaud(const int& ID, const int& rate);
+    int SetReturnLevel(const int& ID, const int& lvl);
+
+	int SetGoalPosition(const int& ID, const double& angle); 
+	int SetGoalPosition(const int& ID, const int& angle);
+	int SetGoalVelocity(const int& ID, const int& velocity);
+	int SetGoalTorque(const int& ID, const int& torque);
+	int SetPunch(const int& ID, const int& punch);
+
+    int SetLED(const int& ID, const int& colour);
 
 private:
 
-	unsigned char update_crc(unsigned char *data_blk_ptr, unsigned short data_blk_size);	
+	unsigned char update_crc(unsigned char *data_blk_ptr, const unsigned short& data_blk_size);	
 
-	int addrLength(int address);
-	int statusError(unsigned char* buf, int n);
-	int send(int ID, int bytes, unsigned char* parameters, unsigned char ins);
+	int AddressLenght(const int& address);
+	int statusError(unsigned char* buf, const int& n);
+	int send(const int& ID, const int& packetLength, unsigned char* parameters, const unsigned char& ins);
 
-	int dataPack(unsigned char ins, unsigned char ** parameters, int address, int value =0);
-	int dataPush(int ID, int address, int value);
-	int dataPull(int ID, int address);
+	int dataPack(const unsigned char& ins, unsigned char ** parameters, const int& address, const int& value =0);
+	int dataPush(const int& ID, const int& address, const int& value);
+	int dataPull(const int& ID, const int& address);
 	
-	static const unsigned char two_byte[11];
+	static const unsigned char TWO_BYTE_ADDRESSES[11];
 
 };
 
@@ -75,6 +77,7 @@ private:
 #define AX_EEPROM_LOCK				47
 #define AX_PUNCH 					48
 
+const unsigned char AX_ID_Broadcast = 0xFE; 	// 254(0xFE) ID writes to all servos on the line
 
 // INSTRUCTIONS
 const unsigned char AX_INS_Ping = 0x01;         // Corresponding device ID command to check if packet reaches
