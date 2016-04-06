@@ -2,13 +2,16 @@
 
 /* ******************************** PUBLIC METHODS ************************************** */
 
-DNXServo::DNXServo(mbed::Serial* portIn, const int& baudIn, const int ReturnLvlIn /*=1*/):
-	port(portIn), baud(baudIn), bitPeriod(1000000.0/baudIn) ReturnLvl(ReturnLvlIn){
+DNXServo::DNXServo(const PinName tx, const PinName rx, const int& baudIn, const int ReturnLvlIn /*=1*/):
+	port(new mbed::Serial(tx, rx)), baud(baudIn), bitPeriod(1000000.0/baudIn), ReturnLvl(ReturnLvlIn){
+	
 	// Set the baud rate of the port
 	port->baud(baud);
 }
 
-DNXServo::~DNXServo(){}
+DNXServo::~DNXServo(){
+	delete port;
+}
 
 // SetID
 int DNXServo::SetID(const int& ID, const int& newID){
@@ -19,9 +22,6 @@ int DNXServo::SetID(const int& ID, const int& newID){
 int DNXServo::GetValue(const int& ID, const int& address){
 	return dataPull(ID, address);
 }
-
-
-
 
 
 

@@ -2,13 +2,13 @@
 
 /* ******************************** PUBLIC METHODS ************************************** */
 
-
-XL320::XL320(mbed::Serial* portIn, const int& baudIn, const int ReturnLvlIn /*=1*/) :
-	DNXServo(portIn, baudIn, ReturnLvlIn) {
+XL320::XL320(const PinName tx, const PinName rx, const int& baudIn, const int ReturnLvlIn /*=1*/) :
+	DNXServo(tx, rx, baudIn, ReturnLvlIn){
 
 	SetReturnLevel(ID_Broadcast, ReturnLvl);
 	pc.print_debug("XL320 object attached to serial at baud rate " + itos(baudIn) + " and bitPeriod of " + dtos(bitPeriod) + "\n");
 }
+
 
 XL320::~XL320(){}
 

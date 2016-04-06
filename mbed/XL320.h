@@ -11,7 +11,7 @@ class XL320 : public DNXServo {
 public:
  	
  	// Create Dynamixel Communication protocol 2.0
-    XL320(mbed::Serial* portIn, const int& baudIn, const int ReturnLvlIn = 1);
+	XL320(const PinName tx, const PinName rx, const int& baudIn, const int ReturnLvlIn =1);
 
     ~XL320();
     

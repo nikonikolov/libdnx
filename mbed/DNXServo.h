@@ -10,7 +10,7 @@ class DNXServo{
 
 public:
 
-	DNXServo(mbed::Serial* portIn, const int& baudIn, const int ReturnLvlIn = 1);
+	DNXServo(const PinName tx, const PinName rx, const int& baudIn, const int ReturnLvlIn =1);
 
 	virtual ~DNXServo();
 

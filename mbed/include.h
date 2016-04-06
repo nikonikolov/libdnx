@@ -11,10 +11,9 @@ using std::string;
 using std::stringstream;
 
 extern PCSerial pc;
-extern mbed::Serial deviceAX12A;
-extern mbed::Serial deviceXL320;
 
-string to_hex(const int& dec);
+string to_hex(const uint8_t& dec);
 string itos(const int& num);
+string dtos(const double& num);
 
 #endif

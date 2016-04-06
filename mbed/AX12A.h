@@ -10,7 +10,7 @@ class AX12A : public DNXServo{
 public:
  	
  	// Create Dynamixel Communication protocol 2.0
-    AX12A(mbed::Serial* portIn, const int& baudIn, const int ReturnLvlIn = 1);
+	AX12A(const PinName tx, const PinName rx, const int& baudIn, const int ReturnLvlIn =1);
 
 	~AX12A();
 
