@@ -7,7 +7,7 @@ XL320::XL320(mbed::Serial* portIn, const int& baudIn, const int ReturnLvlIn /*=1
 	DNXServo(portIn, baudIn, ReturnLvlIn) {
 
 	SetReturnLevel(ID_Broadcast, ReturnLvl);
-	pc.print_debug("XL320 object attached to serial at baud rate " + itos(baudIn) + " and bitPeriod of " + itos(bitPeriod) + "\n");
+	pc.print_debug("XL320 object attached to serial at baud rate " + itos(baudIn) + " and bitPeriod of " + dtos(bitPeriod) + "\n");
 }
 
 XL320::~XL320(){}
@@ -108,9 +108,9 @@ int XL320::Rainbow(const int& ID){
 
 
 // Dynamixel Communication 2.0 Checksum
-unsigned short XL320::update_crc(unsigned short crc_accum, unsigned char *data_blk_ptr, const unsigned short& data_blk_size) {
-    unsigned short i, j;
-    unsigned short crc_table[256] = {
+uint16_t XL320::update_crc(uint16_t crc_accum, uint8_t *data_blk_ptr, const uint16_t& data_blk_size) {
+    uint16_t i, j;
+    uint16_t crc_table[256] = {
         0x0000, 0x8005, 0x800F, 0x000A, 0x801B, 0x001E, 0x0014, 0x8011,
         0x8033, 0x0036, 0x003C, 0x8039, 0x0028, 0x802D, 0x8027, 0x0022,
         0x8063, 0x0066, 0x006C, 0x8069, 0x0078, 0x807D, 0x8077, 0x0072,
@@ -146,7 +146,7 @@ unsigned short XL320::update_crc(unsigned short crc_accum, unsigned char *data_b
     };
 
     for(j = 0; j < data_blk_size; j++) {
-        i = ((unsigned short)(crc_accum >> 8) ^ data_blk_ptr[j]) & 0xFF;
+        i = ((uint16_t)(crc_accum >> 8) ^ data_blk_ptr[j]) & 0xFF;
         crc_accum = (crc_accum << 8) ^ crc_table[i];
     }
     return crc_accum;
@@ -154,20 +154,20 @@ unsigned short XL320::update_crc(unsigned short crc_accum, unsigned char *data_b
 
 
 // Returns Length of Packet
-int XL320::PacketLength(unsigned char* buf) {
+int XL320::PacketLength(uint8_t* buf) {
 	// Header(3) + Reserved(1) + ID(1) +  Packet Length(?) + CRC(2)
-	int Length = MAKEWORD(buf[5], buf[6]) + 7;
+	int Length = makeword(buf[5], buf[6]) + 7;
 	return Length;
 }
 
 
 // Returns Length of Address
-int XL320::AddressLenght(const int& address) {
-	return DNXServo::AddressLenght(address, TWO_BYTE_ADDRESSES);
+int XL320::AddressLength(const int& address) {
+	return DNXServo::AddressLength(address, TWO_BYTE_ADDRESSES);
 }
 
 
-int XL320::statusError(unsigned char* buf, const int& n) {
+int XL320::statusError(uint8_t* buf, const int& n) {
 
 	// Minimum return length
 	if (n < 11) {
@@ -191,8 +191,8 @@ int XL320::statusError(unsigned char* buf, const int& n) {
 		return -1;
 	}
 
-	unsigned short CRC = update_crc(0, buf, n-2);
-	unsigned short checksum = MAKEWORD(buf[n-2],buf[n-1]);
+	uint16_t CRC = update_crc(0, buf, n-2);
+	uint16_t checksum = makeword(buf[n-2],buf[n-1]);
 	if (CRC != checksum){ 
 		flush();
 		pc.print_debug("WRONG CHECKSUM\n");
@@ -218,8 +218,8 @@ int XL320::statusError(unsigned char* buf, const int& n) {
 
 // Packs data and sends it to the servo
 // Dynamixel Communication 2.0 Protocol: Header, Reserved, ID, Packet Length, Instruction, Parameter, 16bit CRC
-int XL320::send(const int& ID, const int& packetLenght, unsigned char* parameters, const unsigned char& ins) {
-	unsigned char buf[255]; // Packet
+int XL320::send(const int& ID, const int& packetLenght, uint8_t* parameters, const uint8_t& ins) {
+	uint8_t buf[255]; // Packet
 
 	// Header
 	buf[0] = 0xFF;
@@ -233,8 +233,8 @@ int XL320::send(const int& ID, const int& packetLenght, unsigned char* parameter
 	buf[4] = ID;
 
 	// Packet Length
-	buf[5] = LOBYTE(packetLenght+3);
-	buf[6] = HIBYTE(packetLenght+3);
+	buf[5] = lobyte(packetLenght+3);
+	buf[6] = hibyte(packetLenght+3);
 
 	// Instruction
 	buf[7] = ins;
@@ -245,9 +245,9 @@ int XL320::send(const int& ID, const int& packetLenght, unsigned char* parameter
 	}
 
 	// Checksum
-	unsigned short CRC = update_crc(0, buf, packetLenght+8);
-	buf[packetLenght+8] = LOBYTE(CRC);
-	buf[packetLenght+9] = HIBYTE(CRC);
+	uint16_t CRC = update_crc(0, buf, packetLenght+8);
+	buf[packetLenght+8] = lobyte(CRC);
+	buf[packetLenght+9] = hibyte(CRC);
 
 	// Transmit
 	write(buf, packetLenght+10);
@@ -275,31 +275,31 @@ int XL320::send(const int& ID, const int& packetLenght, unsigned char* parameter
 
 
 // dataPack sets the parameters in char array and returns length.
-int XL320::dataPack(const unsigned char& ins, unsigned char ** parameters, const int& address, const int& value /*=0*/){
+int XL320::dataPack(const uint8_t& ins, uint8_t ** parameters, const int& address, const int& value /*=0*/){
 
-	unsigned char* data; 
+	uint8_t* data; 
 	
-	int adrl = AddressLenght(address);
+	int adrl = AddressLength(address);
 
 	int size;
 	if (ins == XL_INS_Write) size = adrl+2;
 	else size = 4;
 
-	data = new unsigned char[size];
+	data = new uint8_t[size];
 
-	data[0] = LOBYTE(address);
-	data[1] = HIBYTE(address);
+	data[0] = lobyte(address);
+	data[1] = hibyte(address);
 	
 	if (ins == XL_INS_Read){
 		
-		data[2] = LOBYTE(adrl);
-		data[3] = HIBYTE(adrl);	
+		data[2] = lobyte(adrl);
+		data[3] = hibyte(adrl);	
 	}
 
 	if (ins == XL_INS_Write){
 
-		data[1+adrl] = HIBYTE(value);
-		data[2] = LOBYTE(value);			// if adrl is 1, data[2] will be overwritten and again the correct packet will be sent
+		data[1+adrl] = hibyte(value);
+		data[2] = lobyte(value);			// if adrl is 1, data[2] will be overwritten and again the correct packet will be sent
 	}
 
 	*parameters = data;
@@ -311,7 +311,7 @@ int XL320::dataPack(const unsigned char& ins, unsigned char ** parameters, const
 int XL320::dataPush(const int& ID, const int& address, const int& value){
 	flush(); // Flush reply	for safety
 	
-	unsigned char* parameters;
+	uint8_t* parameters;
     int packetLenght = dataPack(XL_INS_Write, &parameters, address, value);
 
     int ec = send(ID, packetLenght, parameters, XL_INS_Write);
@@ -326,11 +326,11 @@ int XL320::dataPush(const int& ID, const int& address, const int& value){
 int XL320::dataPull(const int& ID, const int& address){
 	flush(); // Flush reply	for safety
 	
-	unsigned char* parameters;
+	uint8_t* parameters;
     int packetLenght = dataPack(XL_INS_Read, &parameters, address);
 
     int size = parameters[2];
-   // unsigned char buf[(11+size)] = {0};
+   // uint8_t buf[(11+size)] = {0};
    	
    	int ec = send(ID, packetLenght, parameters, XL_INS_Read);
 
@@ -341,8 +341,8 @@ int XL320::dataPull(const int& ID, const int& address){
    	}
 
 	//packetPrint(15, buf);
-	if ( ((unsigned char)ID) == reply_buf[4] ){
-   		if (size==2) return (unsigned int)MAKEWORD(reply_buf[9], reply_buf[10]);
+	if ( ((uint8_t)ID) == reply_buf[4] ){
+   		if (size==2) return (unsigned int)makeword(reply_buf[9], reply_buf[10]);
    		else return (unsigned int)reply_buf[9];		
    	}
 
@@ -353,7 +353,7 @@ int XL320::dataPull(const int& ID, const int& address){
 }
 
 
-const unsigned char XL320::TWO_BYTE_ADDRESSES[11] = { 0, 6, 8, 15, 30, 32, 35, 37, 39, 41, 51 };
+const uint8_t XL320::TWO_BYTE_ADDRESSES[11] = { 0, 6, 8, 15, 30, 32, 35, 37, 39, 41, 51 };
 
 
 /* ******************************** PRIVATE METHODS END ************************************** */
@@ -363,12 +363,12 @@ const unsigned char XL320::TWO_BYTE_ADDRESSES[11] = { 0, 6, 8, 15, 30, 32, 35, 3
 
 /*
 int XL320::Test(const int& ID) {
-	unsigned char TxPacket[14] = {0xFF, 0xFF, 0xFD, 0x00, ((unsigned char) ID), 0x07, 0x00, 0x02, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00};
-	unsigned short CRC = update_crc ( 0, TxPacket , 12 ) ; // 12 = 5 + Packet Length(0x00 0x07) = 5+7
+	uint8_t TxPacket[14] = {0xFF, 0xFF, 0xFD, 0x00, ((uint8_t) ID), 0x07, 0x00, 0x02, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00};
+	uint16_t CRC = update_crc ( 0, TxPacket , 12 ) ; // 12 = 5 + Packet Length(0x00 0x07) = 5+7
 	Serial.pc("CRC \n");
 	pc.print_debug(CRC);
-	unsigned char CRC_L = LOBYTE(CRC);
-	unsigned char CRC_H = HIBYTE(CRC);
+	uint8_t CRC_L = lobyte(CRC);
+	uint8_t CRC_H = hibyte(CRC);
 	pc.print_debug("CRC_L \n");
 	pc.print_debug(CRC_L);
 	pc.print_debug("CRC_H \n");

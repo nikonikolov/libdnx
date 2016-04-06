@@ -7,7 +7,7 @@ AX12A::AX12A(mbed::Serial* portIn, const int& baudIn, const int ReturnLvlIn /*=1
 	DNXServo(portIn, baudIn, ReturnLvlIn){
 		
 	SetReturnLevel(ID_Broadcast, ReturnLvl);
-	pc.print_debug("AX12A object attached to serial at baud rate " + itos(baudIn) + " and bitPeriod of " + itos(bitPeriod) + "\n");
+	pc.print_debug("AX12A object attached to serial at baud rate " + itos(baudIn) + " and bitPeriod of " + dtos(bitPeriod) + "\n");
 }
 
 AX12A::~AX12A(){}
@@ -63,12 +63,12 @@ int AX12A::SetLED(const int& ID, const int& value){
 
 
 // Dynamixel Communication 1.0 Checksum
-unsigned char AX12A::update_crc(unsigned char *data_blk_ptr, const unsigned short& data_blk_size) {
+uint8_t AX12A::update_crc(uint8_t *data_blk_ptr, const uint16_t& data_blk_size) {
     
-    unsigned char crc_accum=0;
+    uint8_t crc_accum=0;
     
     // Header bytes (0xFF, 0xFF) do not get included in the checksum  
-    for(unsigned char i = 2; i < data_blk_size; i++) {
+    for(uint8_t i = 2; i < data_blk_size; i++) {
         crc_accum += data_blk_ptr[i];
     }
     
@@ -77,12 +77,12 @@ unsigned char AX12A::update_crc(unsigned char *data_blk_ptr, const unsigned shor
 
 
 // Return Length of Address
-int AX12A::AddressLenght(const int& address) {
-	return DNXServo::AddressLenght(address, TWO_BYTE_ADDRESSES);
+int AX12A::AddressLength(const int& address) {
+	return DNXServo::AddressLength(address, TWO_BYTE_ADDRESSES);
 }
 
 
-int AX12A::statusError(unsigned char* buf, const int& n) {
+int AX12A::statusError(uint8_t* buf, const int& n) {
 	
 	// Minimum return length
 	if (n < 6) {
@@ -98,7 +98,7 @@ int AX12A::statusError(unsigned char* buf, const int& n) {
 		return -1; 
 	}
 
-	unsigned char checksum=update_crc(buf, n-1);
+	uint8_t checksum=update_crc(buf, n-1);
 	// The last byte does not get included in the checksum
 	if(checksum != buf[n-1]){
 		flush();
@@ -142,9 +142,9 @@ int AX12A::statusError(unsigned char* buf, const int& n) {
 
 // Packs data and sends it to the servo
 // Dynamixel Communication 1.0 Protocol: Header, ID, Packet Length, Instruction, Parameter, 16bit CRC
-int AX12A::send(const int& ID, const int& packetLength, unsigned char* parameters, const unsigned char& ins) {
+int AX12A::send(const int& ID, const int& packetLength, uint8_t* parameters, const uint8_t& ins) {
 	
-	unsigned char buf[packetLength+6]; // Packet
+	uint8_t buf[packetLength+6]; // Packet
 
 	// Header
 	buf[0] = 0xFF;
@@ -192,28 +192,28 @@ int AX12A::send(const int& ID, const int& packetLength, unsigned char* parameter
 
 
 // dataPack sets the parameters in char array and returns length.
-int AX12A::dataPack(const unsigned char& ins, unsigned char ** parameters, const int& address, const int& value /*=0*/){
+int AX12A::dataPack(const uint8_t& ins, uint8_t ** parameters, const int& address, const int& value /*=0*/){
 
-	unsigned char* data; 
+	uint8_t* data; 
 	
-	int adrl = AddressLenght(address);
+	int adrl = AddressLength(address);
 
 	int size;
 	if (ins == AX_INS_Write) size = adrl+1;
 	else size = 2;
 
-	data = new unsigned char[size];
-	data[0] = LOBYTE(address);
+	data = new uint8_t[size];
+	data[0] = lobyte(address);
 	
 	if (ins == AX_INS_Read){
 		
-		data[1] = LOBYTE(adrl);	
+		data[1] = lobyte(adrl);	
 	}
 
 	if (ins == AX_INS_Write){
 
-		data[adrl] = HIBYTE(value);
-		data[1] = LOBYTE(value);			// if adrl is 1, data[2] will be overwritten and again the correct packet will be sent
+		data[adrl] = hibyte(value);
+		data[1] = lobyte(value);			// if adrl is 1, data[2] will be overwritten and again the correct packet will be sent
 	}
 
 	*parameters = data;
@@ -226,7 +226,7 @@ int AX12A::dataPack(const unsigned char& ins, unsigned char ** parameters, const
 int AX12A::dataPush(const int& ID, const int& address, const int& value){
 	flush(); // Flush reply for safety															
 	
-	unsigned char* parameters;
+	uint8_t* parameters;
     int packetLength = dataPack(AX_INS_Write, &parameters, address, value);
 
     int ec = send(ID, packetLength, parameters, AX_INS_Write);
@@ -241,7 +241,7 @@ int AX12A::dataPush(const int& ID, const int& address, const int& value){
 int AX12A::dataPull(const int& ID, const int& address){
 	flush(); // Flush reply	for safety														
 	
-	unsigned char* parameters;
+	uint8_t* parameters;
     int packetLength = dataPack(AX_INS_Read, &parameters, address);
 
     int size = parameters[1];
@@ -255,8 +255,8 @@ int AX12A::dataPull(const int& ID, const int& address){
    	}
 
 	//packetPrint(15, buf);
-	if ( ((unsigned char)ID) == reply_buf[2] ){
-   		if (size==2) return (unsigned int)MAKEWORD(reply_buf[5], reply_buf[6]);
+	if ( ((uint8_t)ID) == reply_buf[2] ){
+   		if (size==2) return (unsigned int)makeword(reply_buf[5], reply_buf[6]);
    		else return (unsigned int)reply_buf[5];	
    	}
 
@@ -268,7 +268,7 @@ int AX12A::dataPull(const int& ID, const int& address){
 
 
 
-const unsigned char AX12A::TWO_BYTE_ADDRESSES[11] = { 0, 6, 8, 14, 30, 32, 34, 36, 38, 40, 48 };
+const uint8_t AX12A::TWO_BYTE_ADDRESSES[11] = { 0, 6, 8, 14, 30, 32, 34, 36, 38, 40, 48 };
 
 
 /* ******************************** PRRIVATE METHODS END ************************************** */

@@ -14,7 +14,7 @@ public:
 	PCSerial(const bool& debug_in = false);
 	~PCSerial();
 
-	void print_debug(const std::string& msg);
+	inline void print_debug(const std::string& msg);
 
 	void set_debug();
 	bool get_debug();
@@ -24,6 +24,12 @@ private:
 	mbed::Serial pc_usb;
 	bool debug;
 };
+
+
+inline void PCSerial::print_debug(const std::string& msg){
+	if(!debug) return;
+	pc_usb.printf(msg.c_str());
+}
 
 
 #endif

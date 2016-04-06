@@ -3,13 +3,7 @@
 
 #include "include.h"
 #include <math.h>
-
-/* Things to repair
-	Reply buffer - size for 12 servos
-	How to deal with setting the right return level in the DNX constructor
-	Repair emptying the buffer when writing - read does not read single byte at a call
-	Turn macros into functions	
-*/
+#include <cstdint>
 
 
 class DNXServo{
@@ -23,8 +17,6 @@ public:
     int SetID(const int& ID, const int& newID);
 	int GetValue(const int& ID, const int& address);
 
-    // virtual int Ping(int ID /*=1*/) =0;		// may be possible to put implementation here
-	//int Ping(const int& ID);
     virtual int SetBaud	(const int& ID, const int& rate) =0;
     virtual int SetReturnLevel(const int& ID, const int& lvl) =0;
     virtual int SetLED(const int& ID, const int& colour) =0; 
@@ -36,24 +28,31 @@ public:
 
 protected:
 	
+	template<class Type>
+	inline uint8_t lobyte(const Type& num);
+	template<class Type>
+	inline uint8_t hibyte(const Type& num);
+	template<class T1, class T2>
+	inline uint16_t makeword(const T1& num1, const T2& num2);
+
 	void flush();
-	void write(unsigned char* buf, const int& n);
-	int read(unsigned char* buf, const int& nMax=255);
+	void write(uint8_t* buf, const int& n);
+	int read(uint8_t* buf, const int& nMax=255);
 
 	int angleScale(const double& angle);
-	int AddressLenght(const int& address, const unsigned char * TWO_BYTE_ADDRESSES);
-	void packetPrint(const int& bytes, unsigned char* buf);
+	int AddressLength(const int& address, const uint8_t * TWO_BYTE_ADDRESSES);
+	void packetPrint(const int& bytes, uint8_t* buf);
 	
-	virtual int statusError(unsigned char* buf, const int& n) =0;
-	virtual int send(const int& ID, const int& bytes, unsigned char* parameters, const unsigned char& ins) =0;
+	virtual int statusError(uint8_t* buf, const int& n) =0;
+	virtual int send(const int& ID, const int& bytes, uint8_t* parameters, const uint8_t& ins) =0;
 
-	virtual int dataPack(const unsigned char& ins, unsigned char ** parameters, const int& address, const int& value =0) =0;
+	virtual int dataPack(const uint8_t& ins, uint8_t ** parameters, const int& address, const int& value =0) =0;
 	virtual int dataPush(const int& ID, const int& address, const int& value) =0;
 	virtual int dataPull(const int& ID, const int& address) =0;
 
-	// REPLY BUFFER - SIZE 64 so that there is extra space available for extreme cases. NOTE that currently if 12 servos reply 
-	//at once, buffer will overflow. That should not happen though, since read/write is done with one servo at a time
-    unsigned char reply_buf[256];		
+	// REPLY BUFFER - SIZE 256 Overflow should never occur no matter the number of servos - you only communicate with one ID
+	// and others don't respond. ID_Broadcast does not reply as well 
+    uint8_t reply_buf[256];		
 
     mbed::Serial* port;
     int baud;
@@ -66,16 +65,22 @@ protected:
 #define DNXSERVO_ID 						3
 #define DNXSERVO_BAUD 						4
 
-// ID
-const unsigned char ID_Broadcast = 0xFE; // 254(0xFE) ID writes to all servos on the line
+const uint8_t ID_Broadcast = 0xFE; // 254(0xFE) ID writes to all servos on the line
+
+template<class Type>
+inline uint8_t DNXServo::lobyte(const Type& num){
+	return (uint8_t)num;
+}
+
+template<class Type>
+inline uint8_t DNXServo::hibyte(const Type& num){
+	return (uint8_t) (((uint16_t)num)>>8);
+}
+
+template<class T1, class T2>
+inline uint16_t DNXServo::makeword(const T1& num1, const T2& num2){
+	return ( ((uint16_t)num1 & 0x00ff) | ( ((uint16_t)(num2) & 0x00ff) << 8 ) );
+}
 
 
-// Util
-//#define MAKEWORD(a, b) ((unsigned short)(((unsigned char)(((unsigned long)(a)) & 0xff)) | ((unsigned short)((unsigned char)(((unsigned long)(b)) & 0xff))) << 8))
-//#define HIBYTE(w) ( (unsigned char) ( ((unsigned long)(w)) >> 8 ) )
-#define MAKEWORD(a, b) ( ((unsigned short)(a) & 0x00ff) | ( ((unsigned short)(b) & 0x00ff) << 8 ) )
-#define LOBYTE(w) ( (unsigned char)(w) )
-#define HIBYTE(w) ( (unsigned char) ( ((unsigned short)(w)) >> 8 ) )
-
-
-#endif //DNXSERVO_H
+#endif

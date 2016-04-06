@@ -35,18 +35,18 @@ public:
 
 private:
 	
-	unsigned short update_crc(unsigned short crc_accum, unsigned char *data_blk_ptr, const unsigned short& data_blk_size);
-	int PacketLength(unsigned char* buf);				// Returns length of packet
+	uint16_t update_crc(uint16_t crc_accum, uint8_t *data_blk_ptr, const uint16_t& data_blk_size);
+	int PacketLength(uint8_t* buf);				// Returns length of packet
 
-	int AddressLenght(const int& address);				// Returns length of an address in the Motor Control Table
-	int statusError(unsigned char* buf, const int& n);
-	int send(const int& ID, const int& bytes, unsigned char* parameters, const unsigned char& ins);
+	int AddressLength(const int& address);				// Returns length of an address in the Motor Control Table
+	int statusError(uint8_t* buf, const int& n);
+	int send(const int& ID, const int& bytes, uint8_t* parameters, const uint8_t& ins);
 
-	int dataPack(const unsigned char& ins, unsigned char ** parameters, const int& address, const int& value =0);
+	int dataPack(const uint8_t& ins, uint8_t ** parameters, const int& address, const int& value =0);
 	int dataPush(const int& ID, const int& address, const int& value);
 	int dataPull(const int& ID, const int& address);
     
-	static const unsigned char TWO_BYTE_ADDRESSES[11];
+	static const uint8_t TWO_BYTE_ADDRESSES[11];
 
 };
 
@@ -89,20 +89,20 @@ private:
 #define XL_HARDWARE_ERROR 50
 #define XL_PUNCH 51
 
-const unsigned char XL_ID_Broadcast = 0xFE; 	// 254(0xFE) ID writes to all servos on the line
+const uint8_t XL_ID_Broadcast = 0xFE; 	// 254(0xFE) ID writes to all servos on the line
 
 // INSTRUCTIONS
-const unsigned char XL_INS_Ping = 0x01;         // Corresponding device ID command to check if packet reaches
-const unsigned char XL_INS_Read = 0x02;         // Read command
-const unsigned char XL_INS_Write = 0x03;        // Write command
-const unsigned char XL_INS_RegWrite = 0x04;     // When receiving a write command packet data is not immediately written instead it goes into standby momentarily until action command arrives
-const unsigned char XL_INS_Action = 0x05;       // Go command for Reg Write
-const unsigned char XL_INS_Factory = 0x06;      // Reset All data to factory default settings
-const unsigned char XL_INS_Reboot = 0x08;       // Reboot device
-const unsigned char XL_INS_StatusReturn = 0x55; // Instruction Packet response
-const unsigned char XL_INS_SyncRead = 0x82;     // Read data from the same location and same size for multiple devices simultaneously
-const unsigned char XL_INS_SyncWrite = 0x83;    // Write data from the same location and same size for multiple devices simultaneously
-const unsigned char XL_INS_BulkRead = 0x92;     // Read data from the different locations and different sizes for multiple devices simultaneously
-const unsigned char XL_INS_BulkWrite = 0x93;    // Write data from the different locations and different sizes for multiple devices simultaneously
+const uint8_t XL_INS_Ping = 0x01;         // Corresponding device ID command to check if packet reaches
+const uint8_t XL_INS_Read = 0x02;         // Read command
+const uint8_t XL_INS_Write = 0x03;        // Write command
+const uint8_t XL_INS_RegWrite = 0x04;     // When receiving a write command packet data is not immediately written instead it goes into standby momentarily until action command arrives
+const uint8_t XL_INS_Action = 0x05;       // Go command for Reg Write
+const uint8_t XL_INS_Factory = 0x06;      // Reset All data to factory default settings
+const uint8_t XL_INS_Reboot = 0x08;       // Reboot device
+const uint8_t XL_INS_StatusReturn = 0x55; // Instruction Packet response
+const uint8_t XL_INS_SyncRead = 0x82;     // Read data from the same location and same size for multiple devices simultaneously
+const uint8_t XL_INS_SyncWrite = 0x83;    // Write data from the same location and same size for multiple devices simultaneously
+const uint8_t XL_INS_BulkRead = 0x92;     // Read data from the different locations and different sizes for multiple devices simultaneously
+const uint8_t XL_INS_BulkWrite = 0x93;    // Write data from the different locations and different sizes for multiple devices simultaneously
 
 #endif  // XL320_H

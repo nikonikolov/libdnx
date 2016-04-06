@@ -3,13 +3,9 @@
 /* ******************************** PUBLIC METHODS ************************************** */
 
 DNXServo::DNXServo(mbed::Serial* portIn, const int& baudIn, const int ReturnLvlIn /*=1*/):
-	port(portIn), baud(baudIn), ReturnLvl(ReturnLvlIn){
-	// For some reason result is not currently double
-	bitPeriod = ((double)1000000.0)/double(baud);
-	//bitPeriod = 1000000.0/baud;
-
+	port(portIn), baud(baudIn), bitPeriod(1000000.0/baudIn) ReturnLvl(ReturnLvlIn){
 	// Set the baud rate of the port
-	port.baud(baud);
+	port->baud(baud);
 }
 
 DNXServo::~DNXServo(){}
@@ -44,7 +40,7 @@ void DNXServo::flush() {
 
 
 // Write buffer to servo 
-void DNXServo::write(unsigned char* buf, const int& n) {
+void DNXServo::write(uint8_t* buf, const int& n) {
 	for (int i=0; i < n; i++) {
 		port->putc(buf[i]);
 	}
@@ -60,7 +56,7 @@ void DNXServo::write(unsigned char* buf, const int& n) {
 
 
 // Read reply returns payload length, 0 if error.
-int DNXServo::read(unsigned char* buf, const int& nMax /* =255 */) {			//check readBytesUntil()
+int DNXServo::read(uint8_t* buf, const int& nMax /* =255 */) {			//check readBytesUntil()
 	int n = 0; 		 	// Bytes read
 	int timeout = 0; 	// Timeout
 
@@ -102,7 +98,7 @@ int DNXServo::angleScale(const double& angle){
 
 
 // Length of address
-int DNXServo::AddressLenght(const int& address, const unsigned char * TWO_BYTE_ADDRESSES) {
+int DNXServo::AddressLength(const int& address, const uint8_t * TWO_BYTE_ADDRESSES) {
 	bool found=false;
 	
 	for(int i=0; i<11 && !found; i++){
@@ -115,7 +111,7 @@ int DNXServo::AddressLenght(const int& address, const unsigned char * TWO_BYTE_A
 
 
 // packetPrint
-void DNXServo::packetPrint(const int& bytes, unsigned char* buf) {
+void DNXServo::packetPrint(const int& bytes, uint8_t* buf) {
 	if(!pc.get_debug()) return;
 	pc.print_debug("PACKET {");
 	for (int i=0; i < bytes; i++) {

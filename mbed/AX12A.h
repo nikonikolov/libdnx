@@ -27,17 +27,17 @@ public:
 
 private:
 
-	unsigned char update_crc(unsigned char *data_blk_ptr, const unsigned short& data_blk_size);	
+	uint8_t update_crc(uint8_t *data_blk_ptr, const uint16_t& data_blk_size);	
 
-	int AddressLenght(const int& address);
-	int statusError(unsigned char* buf, const int& n);
-	int send(const int& ID, const int& packetLength, unsigned char* parameters, const unsigned char& ins);
+	int AddressLength(const int& address);
+	int statusError(uint8_t* buf, const int& n);
+	int send(const int& ID, const int& packetLength, uint8_t* parameters, const uint8_t& ins);
 
-	int dataPack(const unsigned char& ins, unsigned char ** parameters, const int& address, const int& value =0);
+	int dataPack(const uint8_t& ins, uint8_t** parameters, const int& address, const int& value =0);
 	int dataPush(const int& ID, const int& address, const int& value);
 	int dataPull(const int& ID, const int& address);
 	
-	static const unsigned char TWO_BYTE_ADDRESSES[11];
+	static const uint8_t TWO_BYTE_ADDRESSES[11];
 
 };
 
@@ -77,15 +77,15 @@ private:
 #define AX_EEPROM_LOCK				47
 #define AX_PUNCH 					48
 
-const unsigned char AX_ID_Broadcast = 0xFE; 	// 254(0xFE) ID writes to all servos on the line
+const uint8_t AX_ID_Broadcast = 0xFE; 	// 254(0xFE) ID writes to all servos on the line
 
 // INSTRUCTIONS
-const unsigned char AX_INS_Ping = 0x01;         // Corresponding device ID command to check if packet reaches
-const unsigned char AX_INS_Read = 0x02;         // Read command
-const unsigned char AX_INS_Write = 0x03;        // Write command
-const unsigned char AX_INS_RegWrite = 0x04;     // When receiving a write command packet data is not immediately written instead it goes into standby momentarily until action command arrives
-const unsigned char AX_INS_Action = 0x05;       // Go command for Reg Write
-const unsigned char AX_INS_Factory = 0x06;      // Reset All data to factory default settings
-const unsigned char AX_INS_SyncWrite = 0x83;    // Write data from the same location and same size for multiple devices simultaneously
+const uint8_t AX_INS_Ping = 0x01;         // Corresponding device ID command to check if packet reaches
+const uint8_t AX_INS_Read = 0x02;         // Read command
+const uint8_t AX_INS_Write = 0x03;        // Write command
+const uint8_t AX_INS_RegWrite = 0x04;     // When receiving a write command packet data is not immediately written instead it goes into standby momentarily until action command arrives
+const uint8_t AX_INS_Action = 0x05;       // Go command for Reg Write
+const uint8_t AX_INS_Factory = 0x06;      // Reset All data to factory default settings
+const uint8_t AX_INS_SyncWrite = 0x83;    // Write data from the same location and same size for multiple devices simultaneously
 
 #endif  // AX12A_H
