@@ -38,25 +38,6 @@ void DnxHAL::write(uint8_t* buf, int n) {
     }
 
 	if(debug_) fprintf(fp_debug_, "DnxHAL: buf cleared\n\r");
-
-/*
-	int i=0;
-	int timeout = 0; 	// Timeout
-	//fprintf(fp_debug_, "about to clear buf\n\r");
-
-	while ((timeout < 2*n) && (i<n)) {
-		if (port_->readable()) {
-			port_->getc();			//empty buffer because tx has written to rx	(only in case of tx and rx connected)																
-			i++;					//rate of the loop does not equal rate of communication
-			timeout = 0;
-		}
-		else{
-			wait_us(bit_period_);																	
-			timeout++;		
-		}															
-	}
-	//fprintf(fp_debug_, "buf cleared\n\r");
-*/
 }
 
 
@@ -65,7 +46,7 @@ int DnxHAL::read(uint8_t* buf, int nMax /* =255 */) {			//check readBytesUntil()
 	int n = 0; 		 	// Bytes read
 	int timeout = 0; 	// Timeout
 
-	while ((timeout < 1000) && (n < nMax)) {
+	while ((timeout < 100) && (n < nMax)) {
 		if (port_->readable()) {
 			buf[n] = port_->getc();
 			n++;
