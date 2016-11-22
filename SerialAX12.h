@@ -1,41 +1,69 @@
-/* Dynamixel Communication 1.0 */
-/* Implements the dynamixel communication protocol for AX-12A */
-#ifndef AX12A_H
-#define AX12A_H
+/* 
 
-#include "DNXServo.h"
+Dynamixel Communication Protocol 1.0 - implements communication for AX-12A servo motors
+===========================================================================================
 
-class AX12A : public DNXServo{
+FUNCTIONALITY:
+	1. Connects to a Serial Port
+	2. Does not represent a single servo, rather represents a port and the associated protocol
+	3. 
+
+-------------------------------------------------------------------------------------------
+
+PROTOCOL SUPPORT:
+	1. Does not supoort all features of the protocol
+	2. Only the basic features needed to control a single servo supported
+
+-------------------------------------------------------------------------------------------
+
+FRAMEWORK:
+	1. Needs a Servo ID and corresponding value to be passed for the function being performed
+
+-------------------------------------------------------------------------------------------
+
+*/
+
+
+#ifndef SERIALAX12_H
+#define SERIALAX12_H
+
+#include "mbed/DnxHAL.h"
+
+class SerialAX12 : public DnxHAL{
  
 public:
  	
- 	// Create Dynamixel Communication protocol 2.0
-	AX12A(const PinName tx, const PinName rx, const int& baudIn, const int ReturnLvlIn =1);
+	SerialAX12(const DnxHAL::Port_t& port_in, int baud_in, int return_level_in =1);
+	~SerialAX12();
 
-	~AX12A();
+    int setBaud(int ID, int rate);
+    int setReturnLevel(int ID, int lvl);
 
-    int SetBaud(const int& ID, const int& rate);
-    int SetReturnLevel(const int& ID, const int& lvl);
+	int setGoalPosition(int ID, double angle); 
+	int setGoalPosition(int ID, int angle);
+	int setGoalVelocity(int ID, int velocity);
+	int setGoalTorque(int ID, int torque);
+	int setPunch(int ID, int punch);
+    int setLED(int ID, int colour);
 
-	int SetGoalPosition(const int& ID, const double& angle); 
-	int SetGoalPosition(const int& ID, const int& angle);
-	int SetGoalVelocity(const int& ID, const int& velocity);
-	int SetGoalTorque(const int& ID, const int& torque);
-	int SetPunch(const int& ID, const int& punch);
+    int setCCWLimit(int ID, int value);
+    int setCWLimit(int ID, int value);
+    int setPresentSpeed(int ID, int value);
+    int enable(int ID);
+    int disable(int ID);
 
-    int SetLED(const int& ID, const int& colour);
 
 private:
 
 	uint8_t update_crc(uint8_t *data_blk_ptr, const uint16_t& data_blk_size);	
 
-	int AddressLength(const int& address);
-	int statusError(uint8_t* buf, const int& n);
-	int send(const int& ID, const int& packetLength, uint8_t* parameters, const uint8_t& ins);
+	int getAddressLen(int address);
+	int statusError(uint8_t* buf, int n);
+	int send(int ID, int packetLength, uint8_t* parameters, uint8_t ins);
 
-	int dataPack(const uint8_t& ins, uint8_t** parameters, const int& address, const int& value =0);
-	int dataPush(const int& ID, const int& address, const int& value);
-	int dataPull(const int& ID, const int& address);
+	int dataPack(uint8_t ins, uint8_t** parameters, int address, int value =0);
+	int dataPush(int ID, int address, int value);
+	int dataPull(int ID, int address);
 	
 	static const uint8_t TWO_BYTE_ADDRESSES[11];
 
@@ -88,4 +116,4 @@ const uint8_t AX_INS_Action = 0x05;       // Go command for Reg Write
 const uint8_t AX_INS_Factory = 0x06;      // Reset All data to factory default settings
 const uint8_t AX_INS_SyncWrite = 0x83;    // Write data from the same location and same size for multiple devices simultaneously
 
-#endif  // AX12A_H
+#endif  // SERIALAX12_H

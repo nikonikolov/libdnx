@@ -1,53 +1,70 @@
-/* Dynamixel Communication 2.0 */
-/* Implements the dynamixel communication protocol for XL-320. */
-#ifndef XL320_H
-#define XL320_H
+/* 
 
-#include "DNXServo.h"
+Dynamixel Communication Protocol 2.0 - implements communication for XL-320 servo motors
+===========================================================================================
+
+FUNCTIONALITY:
+	1. Connects to a Serial Port
+	2. Does not represent a single servo, rather represents a port and the associated protocol
+	3. 
+
+-------------------------------------------------------------------------------------------
+
+PROTOCOL SUPPORT:
+	1. Does not supoort all features of the protocol
+	2. Only the basic features needed to control a single servo supported
+
+-------------------------------------------------------------------------------------------
+
+FRAMEWORK:
+	1. Needs a Servo ID and corresponding value to be passed for the function being performed
+
+-------------------------------------------------------------------------------------------
+
+*/
 
 
-class XL320 : public DNXServo {
+#ifndef SERIALXL320_H
+#define SERIALXL320_H
+
+#include "mbed/DnxHAL.h"
+
+
+class SerialXL320 : public DnxHAL {
  
 public:
  	
- 	// Create Dynamixel Communication protocol 2.0
-	XL320(const PinName tx, const PinName rx, const int& baudIn, const int ReturnLvlIn =1);
-
-    ~XL320();
+	SerialXL320(const DnxHAL::Port_t& port_in, int baud_in, int return_lvl_in=1);
+    ~SerialXL320();
     
-    int SetBaud(const int& ID, const int& rate);
-    int SetReturnLevel(const int& ID, const int& lvl);
+    int setBaud(int ID, int rate);
+    int setReturnLevel(int ID, int lvl);
 
-	int SetGoalPosition(const int& ID, const double& angle);
-	int SetGoalPosition(const int& ID, const int& angle);
-	int SetGoalVelocity(const int& ID, const int& velocity);
-	int SetGoalTorque(const int& ID, const int& torque);
-	int SetPunch(const int& ID, const int& punch);			// Sets the current to drive the motors
+	int setGoalPosition(int ID, double angle);
+	int setGoalPosition(int ID, int angle);
+	int setGoalVelocity(int ID, int velocity);
+	int setGoalTorque(int ID, int torque);
+	int setPunch(int ID, int punch);			// Sets the current to drive the motors
+    int setLED(int ID, int colour);
     
-    int SetP(const int& ID, const int& value);
-	int SetI(const int& ID, const int& value);
-	int SetD(const int& ID, const int& value);
-
-	//int Test(const int& ID);
-    int Ping(const int& ID=1);
-    int SetLED(const int& ID, const int& colour); 
-    int Rainbow(const int& ID);
+    int setP(int ID, int value);
+	int setI(int ID, int value);
+	int setD(int ID, int value);
 
 private:
 	
 	uint16_t update_crc(uint16_t crc_accum, uint8_t *data_blk_ptr, const uint16_t& data_blk_size);
 	int PacketLength(uint8_t* buf);				// Returns length of packet
 
-	int AddressLength(const int& address);				// Returns length of an address in the Motor Control Table
-	int statusError(uint8_t* buf, const int& n);
-	int send(const int& ID, const int& bytes, uint8_t* parameters, const uint8_t& ins);
+	int getAddressLen(int address);				// Returns length of an address in the Motor Control Table
+	int statusError(uint8_t* buf, int n);
+	int send(int ID, int bytes, uint8_t* parameters, uint8_t ins);
 
-	int dataPack(const uint8_t& ins, uint8_t ** parameters, const int& address, const int& value =0);
-	int dataPush(const int& ID, const int& address, const int& value);
-	int dataPull(const int& ID, const int& address);
+	int dataPack(uint8_t ins, uint8_t ** parameters, int address, int value =0);
+	int dataPush(int ID, int address, int value);
+	int dataPull(int ID, int address);
     
 	static const uint8_t TWO_BYTE_ADDRESSES[11];
-
 };
 
 // EEPROM 
@@ -105,4 +122,4 @@ const uint8_t XL_INS_SyncWrite = 0x83;    // Write data from the same location a
 const uint8_t XL_INS_BulkRead = 0x92;     // Read data from the different locations and different sizes for multiple devices simultaneously
 const uint8_t XL_INS_BulkWrite = 0x93;    // Write data from the different locations and different sizes for multiple devices simultaneously
 
-#endif  // XL320_H
+#endif  // SERIALXL320_H
