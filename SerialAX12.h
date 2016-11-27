@@ -27,11 +27,7 @@ FRAMEWORK:
 #ifndef SERIALAX12_H
 #define SERIALAX12_H
 
-#if DNX_PLATFORM_MBED
-#include "mbed/DnxHAL.h"
-#elif DNX_PLATFORM_RPI
-#include "RPi/DnxHAL.h"
-#endif
+#include "DnxHAL.h"
 
 class SerialAX12 : public DnxHAL{
  
