@@ -5,6 +5,11 @@
 DnxHAL::DnxHAL(const DnxHAL::Port_t& port_in, int baud_in, int return_lvl_in /*=1*/) :
     port_(serialOpen(port_in.c_str(), baud_in)), baud_(baud_in), bit_period_(1000000.0/baud_in), return_lvl_(return_lvl_in) {
 
+    if(baud_ > 230400){
+        fprintf(fp_debug_, "Baud rate more than 230400 not supported\n\r");
+        exit(EXIT_FAILURE);
+    }
+
     if(port_ < 0){
         fprintf(fp_debug_, "Unable to open serial device %s: %s\n\r", port_in.c_str(), errno);
         exit(EXIT_FAILURE);
