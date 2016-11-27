@@ -66,6 +66,21 @@ int SerialXL320::setD(int ID, int value){
 	return dataPush(ID, XL_D_GAIN, value);
 }
 
+int SerialXL320::spinCCW(int ID, int torque/*=1023*/){
+    if(torque>1023) torque = 1023;
+    if(torque<1) torque = 1;
+    return dataPush(ID, XL_PRESENT_SPEED, torque);
+}
+
+int SerialXL320::spinCW(int ID, int torque/*=2047*/){
+    if(torque>2047) torque = 2047;
+    if(torque<1024) torque = 1024;
+    return dataPush(ID, XL_PRESENT_SPEED, torque);
+}
+
+int SerialXL320::stopSpinning(int ID){
+    return dataPush(ID, XL_PRESENT_SPEED, 0);
+}
 
 
 /* ******************************** PUBLIC METHODS END************************************** */

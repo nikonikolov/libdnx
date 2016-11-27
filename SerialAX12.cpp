@@ -54,19 +54,20 @@ int SerialAX12::setLED(int ID, int value){
 	return dataPush(ID, AX_LED, value);
 }
 
-int SerialAX12::setCCWLimit(int ID, int value){
-	return dataPush(ID, AX_CCW_ANGLE_LIMIT, value);
-}
-int SerialAX12::setCWLimit(int ID, int value){	
-	return dataPush(ID, AX_CW_ANGLE_LIMIT, value);
-}
-
-int SerialAX12::enable(int ID){
-	return dataPush(ID, AX_TORQUE_ENABLE, 1);
+int SerialAX12::spinCCW(int ID, int torque/*=1023*/){
+    if(torque>1023) torque = 1023;
+    if(torque<1) torque = 1;
+    return dataPush(ID, AX_PRESENT_SPEED, torque);
 }
 
-int SerialAX12::disable(int ID){
-	return dataPush(ID, AX_TORQUE_ENABLE, 0);
+int SerialAX12::spinCW(int ID, int torque/*=2047*/){
+    if(torque>2047) torque = 2047;
+    if(torque<1024) torque = 1024;
+    return dataPush(ID, AX_PRESENT_SPEED, torque);
+}
+
+int SerialAX12::stopSpinning(int ID){
+    return dataPush(ID, AX_PRESENT_SPEED, 0);
 }
 
 

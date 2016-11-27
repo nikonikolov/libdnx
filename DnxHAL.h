@@ -21,25 +21,36 @@ FUNCTIONALITY:
 using std::string;
 
 // Include platform specific libraries
+#if DNX_PLATFORM_MBED
+
 #include "mbed.h"
-/*
-class NoBytesRead : public exception{
-public:
-    virtual const char* what() const throw(){
-        return "No response bytes were read";
-    }
-};
-*/
+
+#elif DNX_PLATFORM_RPI
+
+#include <wiringPi.h>
+#include <wiringSerial.h>
+#include <cstdlib>
+
+#endif
+
+
 class DnxHAL{
 
 public:
 
-	// Define the type for the constructor argument
-    struct Port_t{
-    	Port_t(PinName tx_in, PinName rx_in) : tx(tx_in), rx(rx_in) {}
-    	PinName tx;
-    	PinName rx;
+    // Define the type for the constructor argument
+#if DNX_PLATFORM_MBED
+    struct Port_t
+    {
+        Port_t(PinName tx_in, PinName rx_in) : tx(tx_in), rx(rx_in) {}
+        PinName tx;
+        PinName rx;
     };
+    typedef mbed::Serial* PortPtr_t;
+#elif DNX_PLATFORM_RPI
+    typedef string Port_t;
+    typedef int PortPtr_t;
+#endif
 
 	DnxHAL(const DnxHAL::Port_t& port_in, int baud_in, int return_lvl_in =1);
 	virtual ~DnxHAL();
@@ -55,6 +66,14 @@ public:
 	virtual int setGoalVelocity(int ID, int velocity) =0;
 	virtual int setGoalTorque(int ID, int torque) =0;
 	virtual int setPunch(int ID, int punch) =0;
+    virtual int spinCCW(int ID, int torque=1023) =0;
+    virtual int spinCW(int ID, int torque=2047) =0;
+    virtual int stopSpinning(int ID) =0;
+
+    virtual int setJointMode(int ID);
+    virtual int setWheelMode(int ID);
+    virtual int enable(int ID);
+    virtual int disable(int ID);
 
 protected:
 	
@@ -84,7 +103,7 @@ protected:
 	// and others don't respond. ID_Broadcast does not reply as well 
     uint8_t reply_buf[256];		
 
-    mbed::Serial* port_;
+    PortPtr_t port_;
     int baud_;
     double bit_period_;
     int return_lvl_ = 1;
@@ -95,7 +114,10 @@ protected:
 
 // Control table: Only matching addresses are included
 #define DNXHAL_ID 						3
-#define DNXHAL_BAUD 						4
+#define DNXHAL_BAUD                     4
+#define DNXHAL_CW_LIMIT                 6
+#define DNXHAL_CCW_LIMIT                8
+#define DNXHAL_TORQUE_ENABLE    		24
 
 const uint8_t ID_Broadcast = 0xFE; // 254(0xFE) ID writes to all servos on the line
 

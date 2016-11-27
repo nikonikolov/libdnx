@@ -54,6 +54,10 @@ public:
 	int setI(int ID, int value);
 	int setD(int ID, int value);
 
+    int spinCCW(int ID, int torque=1023);
+    int spinCW(int ID, int torque=2047);
+    int stopSpinning(int ID);
+
 private:
 	
 	uint16_t update_crc(uint16_t crc_accum, uint8_t *data_blk_ptr, const uint16_t& data_blk_size);

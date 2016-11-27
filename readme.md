@@ -1,13 +1,29 @@
-Dynamixel library
-========
+# Dynamixel library
 
-A library for communication between an Arduino or mbed and Dynamixel Servos XL-320/AX-12A.
-The library implements the Dynamixel Communication protocols v1 and v2, so it 
-might work for other Dynamixel servos (this is not tested).
-Note that the implementation for XL-320 is independent of that for the AX-12A servos, so you
-can freely use only the part of the library you need.
+A cross-platform library for controlling Dynamixel Servo motors (http://support.robotis.com/beta/en/product/dxl_main.htm) 
+from an embedded microcontroller.
 
-Usage
--------------------
+## Supported platforms
+Currently supported are 
+..* ARM mbed
+..* Raspberry Pi
+..* Arduino
 
-Check the readme file in the folder for your target platform for further details.
+## Supported servo models
+
+The library implements both `Communication1.0` and `Communication2.0` Dynamixel protocols, so ideally (possibly with some extra tuning),
+it should work for any Dynamixel servo which uses these protocols.
+
+Servos which have been tested and confirmed to work:
+..* AX-12
+..* XL-320
+
+## Platform selection
+
+You should select the platform you are using when compiling the library with your code
+
+### mbed
+Define the macro `DNX_PLATFORM_MBED` at compile time
+
+### Raspberry Pi
+Define the macro `DNX_PLATFORM_RPI` at compile time

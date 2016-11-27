@@ -50,12 +50,9 @@ public:
 	int setPunch(int ID, int punch);
     int setLED(int ID, int colour);
 
-    int setCCWLimit(int ID, int value);
-    int setCWLimit(int ID, int value);
-    int setPresentSpeed(int ID, int value);
-    int enable(int ID);
-    int disable(int ID);
-
+    int spinCCW(int ID, int torque=1023);
+    int spinCW(int ID, int torque=2047);
+    int stopSpinning(int ID);
 
 private:
 
