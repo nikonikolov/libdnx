@@ -5,9 +5,9 @@ from an embedded microcontroller.
 
 ## Supported platforms
 Currently supported are 
-..* ARM mbed
-..* Raspberry Pi
-..* Arduino
+- ARM mbed
+- Raspberry Pi
+- Arduino
 
 ## Supported servo models
 
@@ -15,8 +15,8 @@ The library implements both `Communication1.0` and `Communication2.0` Dynamixel 
 it should work for any Dynamixel servo which uses these protocols.
 
 Servos which have been tested and confirmed to work:
-..* AX-12
-..* XL-320
+- AX-12
+- XL-320
 
 ## Platform selection
 
