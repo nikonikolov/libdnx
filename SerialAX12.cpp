@@ -1,7 +1,7 @@
 #include "SerialAX12.h"
 
 
-SerialAX12::SerialAX12(const DnxHAL::Port_t& port_in, int baud_in, int return_level_in /*=1*/) :
+SerialAX12::SerialAX12(const DnxHAL::Port_t& port_in, long int baud_in, int return_level_in /*=1*/) :
 	DnxHAL(port_in, baud_in, return_level_in){
 	if(debug_) fprintf(fp_debug_, "SerialAX12: Object attached to serial at baud rate %ld and bit period of %f us\n\r", baud_, bit_period_);
 }

@@ -47,12 +47,18 @@ public:
         PinName rx;
     };
     typedef mbed::Serial* PortPtr_t;
+
 #elif DNX_PLATFORM_RPI
     typedef string Port_t;
     typedef int PortPtr_t;
+
+#elif DNX_PLATFORM_ARDUINO
+    typedef HardwareSerial& Port_t;
+    typedef HardwareSerial* PortPtr_t;
+
 #endif
 
-	DnxHAL(const DnxHAL::Port_t& port_in, int baud_in, int return_lvl_in =1);
+	DnxHAL(const DnxHAL::Port_t& port_in, long int baud_in, int return_lvl_in =1);
 	virtual ~DnxHAL();
 
     int setID(int ID, int newID);
@@ -104,7 +110,7 @@ protected:
     uint8_t reply_buf[256];		
 
     PortPtr_t port_;
-    int baud_;
+    long int baud_;
     double bit_period_;
     int return_lvl_ = 1;
 

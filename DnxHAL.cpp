@@ -3,7 +3,7 @@
 /* ============================================= MBED - PLATFORM SPECIFIC METHODS ============================================= */
 #if DNX_PLATFORM_MBED
 
-DnxHAL::DnxHAL(const DnxHAL::Port_t& port_in, int baud_in, int return_lvl_in /*=1*/) :
+DnxHAL::DnxHAL(const DnxHAL::Port_t& port_in, long int baud_in, int return_lvl_in /*=1*/) :
     port_(new mbed::Serial(port_in.tx, port_in.rx)), baud_(baud_in), bit_period_(1000000.0/baud_in), return_lvl_(return_lvl_in){
 
     // Set the baud rate of the port
@@ -63,7 +63,7 @@ int DnxHAL::read(uint8_t* buf, int nMax /* =255 */) {           //check readByte
 /* ============================================= RASPBERRY PI - PLATFORM SPECIFIC METHODS ============================================= */
 #elif DNX_PLATFORM_RPI
 
-DnxHAL::DnxHAL(const DnxHAL::Port_t& port_in, int baud_in, int return_lvl_in /*=1*/) :
+DnxHAL::DnxHAL(const DnxHAL::Port_t& port_in, long int baud_in, int return_lvl_in /*=1*/) :
     port_(serialOpen(port_in.c_str(), baud_in)), baud_(baud_in), bit_period_(1000000.0/baud_in), return_lvl_(return_lvl_in) {
 
     if(baud_ > 230400){
@@ -95,7 +95,7 @@ void DnxHAL::flush() {
 
 // Write buffer to servo 
 void DnxHAL::write(uint8_t* buf, int n) {
-       for (int i=0; i < n; i++) {
+    for (int i=0; i < n; i++) {
         serialPutchar(port_, buf[i]);
     }
 
@@ -103,7 +103,7 @@ void DnxHAL::write(uint8_t* buf, int n) {
 
     for(int i=0; i<n; ){
         if ( serialDataAvail(port_) ){  
-            int inf = serialGetchar(port_);      //empty buffer because tx has written to rx (only in case of tx and rx connected)                                                               
+            serialGetchar(port_);      //empty buffer because tx has written to rx (only in case of tx and rx connected)                                                               
             i++;                                //rate of the loop does not equal rate of communication
         }
     }
@@ -132,7 +132,68 @@ int DnxHAL::read(uint8_t* buf, int nMax /* =255 */) {
     return n;
 }
 
+
+/* ============================================= ARDUINO - PLATFORM SPECIFIC METHODS ============================================= */
+#elif DNX_PLATFORM_ARDUINO
+
+DnxHAL::DnxHAL(const DnxHAL::Port_t& port_in, long int baud_in, int return_lvl_in /*=1*/) :
+    port_(&port_in), baud_(baud_in), bit_period_(1000000.0/baud_in), return_lvl_(return_lvl_in) {
+    
+    port->begin(baud_);
+}
+
+DnxHAL::~DnxHAL(){}
+
+
+// Clear input buffer
+void DnxHAL::flush() {  
+    while (port_->available()) {
+        port_->read();
+    }
+}
+
+
+// Write buffer to servo 
+void DnxHAL::write(uint8_t* buf, int n) {
+    for (int i=0; i < n; i++) {
+        port_->write(buf[i]);
+    }
+
+    if(debug_) fprintf(fp_debug_, "DnxHAL: about to clear buf\n\r");
+
+    for(int i=0; i<n; ){
+        if (port_->available()){ 
+            port_->read();          //empty buffer because tx has written to rx (only in case of tx and rx connected)                                                               
+            i++;                    //rate of the loop does not equal rate of communication
+        }
+    }
+
+    if(debug_) fprintf(fp_debug_, "DnxHAL: buf cleared\n\r");
+}
+
+
+// Read reply returns payload length, 0 if error.
+int DnxHAL::read(uint8_t* buf, int nMax /* =255 */) {           
+    int n = 0;          // Bytes read
+    int timeout = 0;    // Timeout
+
+    while ((timeout < 100) && (n < nMax)) {
+        if (port_->available()) {
+            buf[n] = port_->read();
+            n++;
+            timeout = 0;
+        }
+        else{
+            delayMicroseconds(bit_period_);                                                                 
+            timeout++;      
+        }                                                           
+    }
+
+    return n;
+}
+
 #endif
+
 
 /* ============================================= PLATFORM INDEPENDENT METHODS ============================================= */
 

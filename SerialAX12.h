@@ -33,7 +33,7 @@ class SerialAX12 : public DnxHAL{
  
 public:
  	
-	SerialAX12(const DnxHAL::Port_t& port_in, int baud_in, int return_level_in =1);
+	SerialAX12(const DnxHAL::Port_t& port_in, long int baud_in, int return_level_in =1);
 	~SerialAX12();
 
     int setBaud(int ID, int rate);
