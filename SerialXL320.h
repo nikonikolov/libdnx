@@ -33,7 +33,7 @@ class SerialXL320 : public DnxHAL {
  
 public:
  	
-	SerialXL320(const DnxHAL::Port_t& port_in, long int baud_in, int return_lvl_in=1);
+	SerialXL320(const DnxHAL::Port_t& port_in, int baud_in, int return_lvl_in=1);
     ~SerialXL320();
     
     int setBaud(int ID, int rate);

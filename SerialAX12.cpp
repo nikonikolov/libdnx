@@ -1,7 +1,7 @@
 #include "SerialAX12.h"
 
 
-SerialAX12::SerialAX12(const DnxHAL::Port_t& port_in, long int baud_in, int return_level_in /*=1*/) :
+SerialAX12::SerialAX12(const DnxHAL::Port_t& port_in, int baud_in, int return_level_in /*=1*/) :
 	DnxHAL(port_in, baud_in, return_level_in){
 	if(debug_) fprintf(fp_debug_, "SerialAX12: Object attached to serial at baud rate %ld and bit period of %f us\n\r", baud_, bit_period_);
 }
@@ -9,16 +9,50 @@ SerialAX12::SerialAX12(const DnxHAL::Port_t& port_in, long int baud_in, int retu
 SerialAX12::~SerialAX12(){}
 
 
-
 // 1: 1Mbps, 3: 500 000, 4: 400 000, 7: 250 000, 9: 200 000, 16: 115200, 34: 57600, 103: 19200, 207: 9600
 int SerialAX12::setBaud(int ID, int rate) {
-	if ( rate != 1 && rate != 3 && rate != 4 && rate != 7 && rate != 9 && rate != 16  && rate != 34 && rate != 103 && rate != 207 ) {
-		if(debug_) fprintf(fp_debug_, "SerialAX12: Incorrect baud rate\n\r");
-		return 1;
-	}
+    int baud;
+    switch(rate){
+        case 1:
+            baud = 1000000;
+            break;  
+        case 3:
+            baud = 500000;
+            break;  
+        case 4:
+            baud = 400000;
+            break;  
+        case 7:
+            baud = 250000;
+            break;  
+        case 9:
+            baud = 200000;
+            break;  
+        case 16:
+            baud = 115200;
+            break;  
+        case 34:
+            baud = 57600;
+            break;  
+        case 103:
+            baud = 19200;
+            break;  
+        case 207:
+            baud = 9600;
+            break;  
+        default:
+            fprintf(fp_debug_, "SerialAX12::setBaud() - Incorrect baud rate\n\r");
+            return 1;
+    }
 
-	return dataPush(ID, AX_BAUD_RATE, rate);
+    // Set servo baud rate
+	dataPush(ID, AX_BAUD_RATE, rate);
+
+    // Set serial baud rate
+    DnxHAL::serialBaud(baud);
+    return 0;
 }
+
 
 // Set which commands return status; 0: None, 1: Read, 2: All.
 int SerialAX12::setReturnLevel(int ID, int lvl) {

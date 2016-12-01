@@ -3,7 +3,7 @@
 
 /* ******************************** PUBLIC METHODS ************************************** */
 
-SerialXL320::SerialXL320(const DnxHAL::Port_t& port_in, long int baud_in, int return_level_in /*=1*/) :
+SerialXL320::SerialXL320(const DnxHAL::Port_t& port_in, int baud_in, int return_level_in /*=1*/) :
     DnxHAL(port_in, baud_in, return_level_in){
     if(debug_) fprintf(fp_debug_, "XL320_SERIAL: Object attached to serial at baud rate %ld and bit period of %f us\n\r", baud_in, bit_period_);
 }
@@ -13,11 +13,31 @@ SerialXL320::~SerialXL320(){}
 
 // 0: 9600, 1:57600, 2:115200, 3:1Mbps
 int SerialXL320::setBaud(int ID, int rate) {
-	if ((rate > 3) || rate < 0) {
-		if(debug_) fprintf(fp_debug_, "SerialXL320: Incorrect baud rate\n\r");
-		return 1;
-	}
-	return dataPush(ID, XL_BAUD_RATE, rate);
+    int baud;
+    switch(rate){
+        case 3:
+            baud = 1000000;
+            break;  
+        case 2:
+            baud = 115200;
+            break;  
+        case 1:
+            baud = 57600;
+            break;  
+        case 0:
+            baud = 9600;
+            break;  
+        default:
+            fprintf(fp_debug_, "SerialXL320::setBaud() - Incorrect baud rate\n\r");
+            return 1;
+    }
+
+    // Set servo baud rate
+    dataPush(ID, XL_BAUD_RATE, rate);
+
+    // Set serial baud rate
+    DnxHAL::serialBaud(baud);
+    return 0;
 }
 
 // Set which commands return status; 0: None, 1: Read, 2: All.

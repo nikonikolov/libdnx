@@ -17,8 +17,6 @@ FUNCTIONALITY:
 #define DNXHAL_H
 
 #include <cstdint>
-#include <string>
-using std::string;
 
 // Include platform specific libraries
 #if DNX_PLATFORM_MBED
@@ -27,9 +25,12 @@ using std::string;
 
 #elif DNX_PLATFORM_RPI
 
+#include <cstdlib>
+#include <string>
+using std::string;
+
 #include <wiringPi.h>
 #include <wiringSerial.h>
-#include <cstdlib>
 
 #endif
 
@@ -47,18 +48,12 @@ public:
         PinName rx;
     };
     typedef mbed::Serial* PortPtr_t;
-
 #elif DNX_PLATFORM_RPI
     typedef string Port_t;
     typedef int PortPtr_t;
-
-#elif DNX_PLATFORM_ARDUINO
-    typedef HardwareSerial& Port_t;
-    typedef HardwareSerial* PortPtr_t;
-
 #endif
 
-	DnxHAL(const DnxHAL::Port_t& port_in, long int baud_in, int return_lvl_in =1);
+	DnxHAL(const DnxHAL::Port_t& port_in, int baud_in, int return_lvl_in =1);
 	virtual ~DnxHAL();
 
     int setID(int ID, int newID);
@@ -105,14 +100,17 @@ protected:
 	virtual int dataPush(int ID, int address, int value) =0;
 	virtual int dataPull(int ID, int address) =0;
 
+    void serialBaud(int baud);
+
 	// REPLY BUFFER - SIZE 256 Overflow should never occur no matter the number of servos - you only communicate with one ID
 	// and others don't respond. ID_Broadcast does not reply as well 
     uint8_t reply_buf[256];		
 
-    PortPtr_t port_;
-    long int baud_;
-    double bit_period_;
-    int return_lvl_ = 1;
+    Port_t port_descriptor_;        // Structure that was used to open port_
+    PortPtr_t port_;                // Actual port object
+    int baud_;                      // Baud rate of the communication
+    double bit_period_;             // Bit period of the communication
+    int return_lvl_ = 1;            // Return level of the physical servo
 
     bool debug_ = false;
     FILE* fp_debug_ = stdout;

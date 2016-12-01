@@ -3,8 +3,8 @@
 /* ============================================= MBED - PLATFORM SPECIFIC METHODS ============================================= */
 #if DNX_PLATFORM_MBED
 
-DnxHAL::DnxHAL(const DnxHAL::Port_t& port_in, long int baud_in, int return_lvl_in /*=1*/) :
-    port_(new mbed::Serial(port_in.tx, port_in.rx)), baud_(baud_in), bit_period_(1000000.0/baud_in), return_lvl_(return_lvl_in){
+DnxHAL::DnxHAL(const DnxHAL::Port_t& port_in, int baud_in, int return_lvl_in /*=1*/) :
+    port_(new mbed::Serial(port_in.tx, port_in.rx)), baud_(baud_in), bit_period_(1000000.0/baud_in), return_lvl_(return_lvl_in), port_descriptor_(port_in){
 
     // Set the baud rate of the port
     port_->baud(baud_);
@@ -60,11 +60,18 @@ int DnxHAL::read(uint8_t* buf, int nMax /* =255 */) {           //check readByte
     return n;
 }
 
+void DnxHAL::serialBaud(int baud){
+    baud_ = baud;
+    bit_period_ = 1000000.0/baud_;
+    port_->baud(baud_);
+}
+
+
 /* ============================================= RASPBERRY PI - PLATFORM SPECIFIC METHODS ============================================= */
 #elif DNX_PLATFORM_RPI
 
-DnxHAL::DnxHAL(const DnxHAL::Port_t& port_in, long int baud_in, int return_lvl_in /*=1*/) :
-    port_(serialOpen(port_in.c_str(), baud_in)), baud_(baud_in), bit_period_(1000000.0/baud_in), return_lvl_(return_lvl_in) {
+DnxHAL::DnxHAL(const DnxHAL::Port_t& port_in, int baud_in, int return_lvl_in /*=1*/) :
+    port_(serialOpen(port_in.c_str(), baud_in)), baud_(baud_in), bit_period_(1000000.0/baud_in), return_lvl_(return_lvl_in), port_descriptor_(port_in) {
 
     if(baud_ > 230400){
         fprintf(fp_debug_, "Baud rate more than 230400 not supported\n\r");
@@ -133,64 +140,23 @@ int DnxHAL::read(uint8_t* buf, int nMax /* =255 */) {
 }
 
 
-/* ============================================= ARDUINO - PLATFORM SPECIFIC METHODS ============================================= */
-#elif DNX_PLATFORM_ARDUINO
+void DnxHAL::serialBaud(int baud){
+    baud_ = baud;
+    bit_period_ = 1000000.0/baud_;
+    serialClose(port_);
+    port_ = serialOpen(port_descriptor_.c_str(), baud_)
 
-DnxHAL::DnxHAL(const DnxHAL::Port_t& port_in, long int baud_in, int return_lvl_in /*=1*/) :
-    port_(&port_in), baud_(baud_in), bit_period_(1000000.0/baud_in), return_lvl_(return_lvl_in) {
-    
-    port->begin(baud_);
-}
+    if(baud_ > 230400){
+        fprintf(fp_debug_, "Baud rate more than 230400 not supported\n\r");
+        exit(EXIT_FAILURE);
+    }
 
-DnxHAL::~DnxHAL(){}
-
-
-// Clear input buffer
-void DnxHAL::flush() {  
-    while (port_->available()) {
-        port_->read();
+    if(port_ < 0){
+        fprintf(fp_debug_, "Unable to open serial device %s: %s\n\r", port_descriptor_.c_str(), errno);
+        exit(EXIT_FAILURE);
     }
 }
 
-
-// Write buffer to servo 
-void DnxHAL::write(uint8_t* buf, int n) {
-    for (int i=0; i < n; i++) {
-        port_->write(buf[i]);
-    }
-
-    if(debug_) fprintf(fp_debug_, "DnxHAL: about to clear buf\n\r");
-
-    for(int i=0; i<n; ){
-        if (port_->available()){ 
-            port_->read();          //empty buffer because tx has written to rx (only in case of tx and rx connected)                                                               
-            i++;                    //rate of the loop does not equal rate of communication
-        }
-    }
-
-    if(debug_) fprintf(fp_debug_, "DnxHAL: buf cleared\n\r");
-}
-
-
-// Read reply returns payload length, 0 if error.
-int DnxHAL::read(uint8_t* buf, int nMax /* =255 */) {           
-    int n = 0;          // Bytes read
-    int timeout = 0;    // Timeout
-
-    while ((timeout < 100) && (n < nMax)) {
-        if (port_->available()) {
-            buf[n] = port_->read();
-            n++;
-            timeout = 0;
-        }
-        else{
-            delayMicroseconds(bit_period_);                                                                 
-            timeout++;      
-        }                                                           
-    }
-
-    return n;
-}
 
 #endif
 
