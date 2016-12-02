@@ -1,5 +1,12 @@
 #include "SerialXL320.h"
 
+const uint8_t SerialXL320::INS_REBOOT       = 0x08;     // Reboot device
+const uint8_t SerialXL320::INS_STATUSRETURN = 0x55;     // Instruction Packet response
+const uint8_t SerialXL320::INS_SYNCREAD     = 0x82;     // Read data from the same location and same size for multiple devices simultaneously
+const uint8_t SerialXL320::INS_SYNCWRITE    = 0x83;     // Write data from the same location and same size for multiple devices simultaneously
+const uint8_t SerialXL320::INS_BULKREAD     = 0x92;     // Read data from the different locations and different sizes for multiple devices simultaneously
+const uint8_t SerialXL320::INS_BULKWRITE    = 0x93;     // Write data from the different locations and different sizes for multiple devices simultaneously
+
 
 /* ******************************** PUBLIC METHODS ************************************** */
 
@@ -255,7 +262,7 @@ int SerialXL320::send(int ID, int packetLenght, uint8_t* parameters, uint8_t ins
 	write(buf, packetLenght+10);
 
 	// Broadcast and Reply Lvl less than 2 do not reply
-	if (ID == ID_Broadcast || return_lvl_==0 || (return_lvl_==1 && ins!=XL_INS_Read)) {
+	if (ID == ID_Broadcast || return_lvl_==0 || (return_lvl_==1 && ins!=INS_READ)) {
 		return 0;	
 	}
 
@@ -284,7 +291,7 @@ int SerialXL320::dataPack(uint8_t ins, uint8_t ** parameters, int address, int v
 	int adrl = getAddressLen(address);
 
 	int size;
-	if (ins == XL_INS_Write) size = adrl+2;
+	if (ins == INS_WRITE) size = adrl+2;
 	else size = 4;
 
 	data = new uint8_t[size];
@@ -292,13 +299,13 @@ int SerialXL320::dataPack(uint8_t ins, uint8_t ** parameters, int address, int v
 	data[0] = lobyte(address);
 	data[1] = hibyte(address);
 	
-	if (ins == XL_INS_Read){
+	if (ins == INS_READ){
 		
 		data[2] = lobyte(adrl);
 		data[3] = hibyte(adrl);	
 	}
 
-	if (ins == XL_INS_Write){
+	if (ins == INS_WRITE){
 
 		data[1+adrl] = hibyte(value);
 		data[2] = lobyte(value);			// if adrl is 1, data[2] will be overwritten and again the correct packet will be sent
@@ -314,9 +321,9 @@ int SerialXL320::dataPush(int ID, int address, int value){
 	flush(); // Flush reply	for safety
 	
 	uint8_t* parameters;
-    int packetLenght = dataPack(XL_INS_Write, &parameters, address, value);
+    int packetLenght = dataPack(INS_WRITE, &parameters, address, value);
 
-    int ec = send(ID, packetLenght, parameters, XL_INS_Write);
+    int ec = send(ID, packetLenght, parameters, INS_WRITE);
    	
    	delete[] parameters;
 
@@ -329,12 +336,12 @@ int SerialXL320::dataPull(int ID, int address){
 	flush(); // Flush reply	for safety
 	
 	uint8_t* parameters;
-    int packetLenght = dataPack(XL_INS_Read, &parameters, address);
+    int packetLenght = dataPack(INS_READ, &parameters, address);
 
     int size = parameters[2];
    // uint8_t buf[(11+size)] = {0};
    	
-   	int ec = send(ID, packetLenght, parameters, XL_INS_Read);
+   	int ec = send(ID, packetLenght, parameters, INS_READ);
 
    	delete[] parameters;
    	

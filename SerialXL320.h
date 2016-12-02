@@ -39,6 +39,8 @@ public:
     int setBaud(int ID, int rate);
     int setReturnLevel(int ID, int lvl);
 
+    //int setGoalPosition(int ID, double angle, bool cash=false); 
+    //int setGoalPosition(int ID, int angle, bool cash=false);
 	int setGoalPosition(int ID, double angle);
 	int setGoalPosition(int ID, int angle);
 	int setGoalVelocity(int ID, int velocity);
@@ -68,6 +70,13 @@ private:
 	int dataPull(int ID, int address);
     
 	static const uint8_t TWO_BYTE_ADDRESSES[11];
+
+    static const uint8_t INS_REBOOT;
+    static const uint8_t INS_STATUSRETURN;
+    static const uint8_t INS_SYNCREAD;
+    static const uint8_t INS_SYNCWRITE;
+    static const uint8_t INS_BULKREAD;
+    static const uint8_t INS_BULKWRITE;
 };
 
 // EEPROM 
@@ -109,20 +118,4 @@ private:
 #define XL_HARDWARE_ERROR 50
 #define XL_PUNCH 51
 
-const uint8_t XL_ID_Broadcast = 0xFE; 	// 254(0xFE) ID writes to all servos on the line
-
-// INSTRUCTIONS
-const uint8_t XL_INS_Ping = 0x01;         // Corresponding device ID command to check if packet reaches
-const uint8_t XL_INS_Read = 0x02;         // Read command
-const uint8_t XL_INS_Write = 0x03;        // Write command
-const uint8_t XL_INS_RegWrite = 0x04;     // When receiving a write command packet data is not immediately written instead it goes into standby momentarily until action command arrives
-const uint8_t XL_INS_Action = 0x05;       // Go command for Reg Write
-const uint8_t XL_INS_Factory = 0x06;      // Reset All data to factory default settings
-const uint8_t XL_INS_Reboot = 0x08;       // Reboot device
-const uint8_t XL_INS_StatusReturn = 0x55; // Instruction Packet response
-const uint8_t XL_INS_SyncRead = 0x82;     // Read data from the same location and same size for multiple devices simultaneously
-const uint8_t XL_INS_SyncWrite = 0x83;    // Write data from the same location and same size for multiple devices simultaneously
-const uint8_t XL_INS_BulkRead = 0x92;     // Read data from the different locations and different sizes for multiple devices simultaneously
-const uint8_t XL_INS_BulkWrite = 0x93;    // Write data from the different locations and different sizes for multiple devices simultaneously
-
-#endif  // SERIALXL320_H
+#endif

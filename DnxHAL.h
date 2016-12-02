@@ -62,8 +62,8 @@ public:
     virtual int setBaud(int ID, int rate) =0;
     virtual int setReturnLevel(int ID, int lvl) =0;
     virtual int setLED(int ID, int colour) =0; 
-	virtual int setGoalPosition(int ID, int angle) =0;
-	virtual int setGoalPosition(int ID, double angle) =0;
+	virtual int setGoalPosition(int ID, int angle, bool cash=false) =0;
+	virtual int setGoalPosition(int ID, double angle, bool cash=false) =0;
 	virtual int setGoalVelocity(int ID, int velocity) =0;
 	virtual int setGoalTorque(int ID, int torque) =0;
 	virtual int setPunch(int ID, int punch) =0;
@@ -71,10 +71,14 @@ public:
     virtual int spinCW(int ID, int torque=2047) =0;
     virtual int stopSpinning(int ID) =0;
 
+    virtual int action(int ID) =0;                              // Activate the buffered command on the servo Must execute INS_WRITE_REG fist
+
     virtual int setJointMode(int ID);
     virtual int setWheelMode(int ID);
     virtual int enable(int ID);
     virtual int disable(int ID);
+
+    static const uint8_t ID_BROADCAST;
 
 protected:
 	
@@ -97,8 +101,9 @@ protected:
 	virtual int send(int ID, int bytes, uint8_t* parameters, uint8_t ins) =0;
 
 	virtual int dataPack(uint8_t ins, uint8_t ** parameters, int address, int value =0) =0;
-	virtual int dataPush(int ID, int address, int value) =0;
+    virtual int dataPush(int ID, int address, int value, const uint8_t instruction=INS_WRITE) =0;
 	virtual int dataPull(int ID, int address) =0;
+
 
     void serialBaud(int baud);
 
@@ -114,6 +119,14 @@ protected:
 
     bool debug_ = false;
     FILE* fp_debug_ = stdout;
+
+    static const uint8_t INS_PING;
+    static const uint8_t INS_READ;
+    static const uint8_t INS_WRITE;
+    static const uint8_t INS_REGWRITE;
+    static const uint8_t INS_ACTION;
+    static const uint8_t INS_FACTORY;
+    static const uint8_t INS_SYNCWRITE;
 };
 
 // Control table: Only matching addresses are included

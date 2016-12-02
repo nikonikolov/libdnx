@@ -1,5 +1,18 @@
 #include "DnxHAL.h"
 
+// BROADCAST ID
+const uint8_t DnxHAL::ID_BROADCAST   = 0xFE;     // 254(0xFE) ID writes to all servos on the line
+
+// INSTRUCTIONS
+const uint8_t DnxHAL::INS_PING       = 0x01;     // Corresponding device ID command to check if packet reaches
+const uint8_t DnxHAL::INS_READ       = 0x02;     // Read command
+const uint8_t DnxHAL::INS_WRITE      = 0x03;     // Write command
+const uint8_t DnxHAL::INS_REGWRITE   = 0x04;     // When receiving a write command packet data is not immediately written instead it goes into standby momentarily until action command arrives
+const uint8_t DnxHAL::INS_ACTION     = 0x05;     // Go command for Reg Write
+const uint8_t DnxHAL::INS_FACTORY    = 0x06;     // Reset All data to factory default settings
+const uint8_t DnxHAL::INS_SYNCWRITE  = 0x83;     // Write data from the same location and same size for multiple devices simultaneously
+
+
 /* ============================================= MBED - PLATFORM SPECIFIC METHODS ============================================= */
 #if DNX_PLATFORM_MBED
 

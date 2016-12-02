@@ -39,8 +39,8 @@ public:
     int setBaud(int ID, int rate);
     int setReturnLevel(int ID, int lvl);
 
-	int setGoalPosition(int ID, double angle); 
-	int setGoalPosition(int ID, int angle);
+	int setGoalPosition(int ID, double angle, bool cash=false); 
+	int setGoalPosition(int ID, int angle, bool cash=false);
 	int setGoalVelocity(int ID, int velocity);
 	int setGoalTorque(int ID, int torque);
 	int setPunch(int ID, int punch);
@@ -49,6 +49,10 @@ public:
     int spinCCW(int ID, int torque=1023);
     int spinCW(int ID, int torque=2047);
     int stopSpinning(int ID);
+    
+    int action(int ID);
+
+    static const uint8_t ID_BROADCAST;
 
 private:
 
@@ -59,11 +63,10 @@ private:
 	int send(int ID, int packetLength, uint8_t* parameters, uint8_t ins);
 
 	int dataPack(uint8_t ins, uint8_t** parameters, int address, int value =0);
-	int dataPush(int ID, int address, int value);
+    int dataPush(int ID, int address, int value, const uint8_t instruction=INS_WRITE);
 	int dataPull(int ID, int address);
 	
 	static const uint8_t TWO_BYTE_ADDRESSES[11];
-
 };
 
 // EEPROM 
@@ -102,15 +105,4 @@ private:
 #define AX_EEPROM_LOCK				47
 #define AX_PUNCH 					48
 
-const uint8_t AX_ID_Broadcast = 0xFE; 	// 254(0xFE) ID writes to all servos on the line
-
-// INSTRUCTIONS
-const uint8_t AX_INS_Ping = 0x01;         // Corresponding device ID command to check if packet reaches
-const uint8_t AX_INS_Read = 0x02;         // Read command
-const uint8_t AX_INS_Write = 0x03;        // Write command
-const uint8_t AX_INS_RegWrite = 0x04;     // When receiving a write command packet data is not immediately written instead it goes into standby momentarily until action command arrives
-const uint8_t AX_INS_Action = 0x05;       // Go command for Reg Write
-const uint8_t AX_INS_Factory = 0x06;      // Reset All data to factory default settings
-const uint8_t AX_INS_SyncWrite = 0x83;    // Write data from the same location and same size for multiple devices simultaneously
-
-#endif  // SERIALAX12_H
+#endif

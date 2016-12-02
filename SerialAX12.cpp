@@ -1,10 +1,10 @@
 #include "SerialAX12.h"
 
-
 SerialAX12::SerialAX12(const DnxHAL::Port_t& port_in, int baud_in, int return_level_in /*=1*/) :
 	DnxHAL(port_in, baud_in, return_level_in){
 	if(debug_) fprintf(fp_debug_, "SerialAX12: Object attached to serial at baud rate %ld and bit period of %f us\n\r", baud_, bit_period_);
 }
+
 
 SerialAX12::~SerialAX12(){}
 
@@ -61,32 +61,38 @@ int SerialAX12::setReturnLevel(int ID, int lvl) {
 }
 
 
-
 // 1024 = -150 degrees CCW, 512 = 0 degrees (ORIGIN), 0 = +150 degrees CW
-int SerialAX12::setGoalPosition(int ID, int angle){
-	return dataPush(ID, AX_GOAL_POSITION, angle);
+int SerialAX12::setGoalPosition(int ID, int angle, bool cash/*=false*/){
+    if(cash) return dataPush(ID, AX_GOAL_POSITION, angle, INS_REGWRITE);            // 
+    else     return dataPush(ID, AX_GOAL_POSITION, angle, INS_WRITE);
 }
 
-int SerialAX12::setGoalPosition(int ID, double angle){
-	return dataPush(ID, AX_GOAL_POSITION, angleScale(angle));
+
+int SerialAX12::setGoalPosition(int ID, double angle, bool cash/*=false*/){
+	return setGoalPosition(ID, angleScale(angle), cash);
 }
+
 
 int SerialAX12::setGoalVelocity(int ID, int velocity){
 	return dataPush(ID, AX_GOAL_VELOCITY, velocity);
 }
 
+
 int SerialAX12::setGoalTorque(int ID, int torque){
 	return dataPush(ID, AX_MAX_TORQUE, torque);
 }
+
 
 int SerialAX12::setPunch(int ID, int punch){
 	return dataPush(ID, AX_PUNCH, punch);
 }
 
+
 // Turn LED on (0x01) and off (0x00)
 int SerialAX12::setLED(int ID, int value){
 	return dataPush(ID, AX_LED, value);
 }
+
 
 int SerialAX12::spinCCW(int ID, int torque/*=1023*/){
     if(torque>1023) torque = 1023;
@@ -94,14 +100,22 @@ int SerialAX12::spinCCW(int ID, int torque/*=1023*/){
     return dataPush(ID, AX_PRESENT_SPEED, torque);
 }
 
+
 int SerialAX12::spinCW(int ID, int torque/*=2047*/){
     if(torque>2047) torque = 2047;
     if(torque<1024) torque = 1024;
     return dataPush(ID, AX_PRESENT_SPEED, torque);
 }
 
+
 int SerialAX12::stopSpinning(int ID){
     return dataPush(ID, AX_PRESENT_SPEED, 0);
+}
+
+
+int SerialAX12::action(int ID){
+    uint8_t* parameters;
+    return send(ID, 0, parameters, INS_ACTION);
 }
 
 
@@ -131,7 +145,6 @@ int SerialAX12::getAddressLen(int address) {
 
 
 int SerialAX12::statusError(uint8_t* buf, int n) {
-	
 	// Minimum return length
 	if (n < 6) {
 		flush();
@@ -190,9 +203,9 @@ int SerialAX12::statusError(uint8_t* buf, int n) {
 
 // Packs data and sends it to the servo
 // Dynamixel Communication 1.0 Protocol: Header, ID, Packet Length, Instruction, Parameter, 16bit CRC
-int SerialAX12::send(int ID, int packetLength, uint8_t* parameters, uint8_t ins) {
+int SerialAX12::send(int ID, int packet_len, uint8_t* parameters, uint8_t ins) {
 	
-	uint8_t buf[packetLength+6]; // Packet
+	uint8_t buf[packet_len+6]; // Packet
 
 	// Header
 	buf[0] = 0xFF;
@@ -202,25 +215,25 @@ int SerialAX12::send(int ID, int packetLength, uint8_t* parameters, uint8_t ins)
 	buf[2] = ID;
 
 	// Packet Length
-	buf[3] = packetLength+2;
+	buf[3] = packet_len+2;
 
 	// Instruction
 	buf[4] = ins;
 
 	// Parameter
-	for (int i=0; i < packetLength; i++) {
+	for (int i=0; i < packet_len; i++) {
 		buf[5+i] = parameters[i];
 	}
 
 	// Checksum
-	buf[packetLength+5] = update_crc(buf, packetLength+5);
+	buf[packet_len+5] = update_crc(buf, packet_len+5);
 
 	// Transmit
-	write(buf, packetLength+6);
+	write(buf, packet_len+6);
 	//if(debug_) fprintf(fp_debug_, "Packet written");
 	
 	// Broadcast and Reply Lvl less than 2 do not reply
-	if (ID == ID_Broadcast || return_lvl_==0 || (return_lvl_==1 && ins!=AX_INS_Read)) {
+	if (ID == ID_Broadcast || return_lvl_==0 || (return_lvl_==1 && ins!=INS_READ)) {
 		return 0;	
 	}
 
@@ -244,42 +257,42 @@ int SerialAX12::send(int ID, int packetLength, uint8_t* parameters, uint8_t ins)
 // dataPack sets the parameters in char array and returns length.
 int SerialAX12::dataPack(uint8_t ins, uint8_t ** parameters, int address, int value /*=0*/){
 
-	uint8_t* data; 
-	
-	int adrl = getAddressLen(address);
+    uint8_t* data; 
+    
+    int adrl = getAddressLen(address);
 
-	int size;
-	if (ins == AX_INS_Write) size = adrl+1;
-	else size = 2;
+    int size;
+    if (ins == INS_WRITE || ins == INS_REGWRITE) size = adrl+1;
+    else size = 2;
 
-	data = new uint8_t[size];
-	data[0] = lobyte(address);
-	
-	if (ins == AX_INS_Read){
-		
-		data[1] = lobyte(adrl);	
-	}
+    data = new uint8_t[size];
+    data[0] = lobyte(address);
+    
+    if (ins == INS_READ){
+        
+        data[1] = lobyte(adrl); 
+    }
 
-	if (ins == AX_INS_Write){
+    if (ins == INS_WRITE || ins == INS_REGWRITE){
 
-		data[adrl] = hibyte(value);
-		data[1] = lobyte(value);			// if adrl is 1, data[2] will be overwritten and again the correct packet will be sent
-	}
+        data[adrl] = hibyte(value);
+        data[1] = lobyte(value);            // if adrl is 1, data[2] will be overwritten and again the correct packet will be sent
+    }
 
-	*parameters = data;
+    *parameters = data;
 
-	return size;
+    return size;    
 }
 
 
 // dataPush is a generic wrapper for single value SET instructions for public methods
-int SerialAX12::dataPush(int ID, int address, int value){
+int SerialAX12::dataPush(int ID, int address, int value, const uint8_t instruction/*=INS_WRITE*/){
 	flush(); // Flush reply for safety															
 	
 	uint8_t* parameters;
-    int packetLength = dataPack(AX_INS_Write, &parameters, address, value);
+    int packet_len = dataPack(instruction, &parameters, address, value);
 
-    int ec = send(ID, packetLength, parameters, AX_INS_Write);
+    int ec = send(ID, packet_len, parameters, instruction);
    	
    	delete[] parameters;
 
@@ -292,13 +305,13 @@ int SerialAX12::dataPull(int ID, int address){
 	flush(); // Flush reply	for safety														
 	
 	uint8_t* parameters;
-    int packetLength = dataPack(AX_INS_Read, &parameters, address);
+    int packet_len = dataPack(INS_READ, &parameters, address);
 
     int size = parameters[1];
    	/*
    	int ec;
    	try{
-	   	ec = send(ID, packetLength, parameters, AX_INS_Read);
+	   	ec = send(ID, packet_len, parameters, INS_READ);
    	}
    	catch(NoBytesRead& e){
    		if(debug_) fprintf(fp_debug_, "SerialAX12: Exception %s\n\r", e.what());
@@ -306,7 +319,7 @@ int SerialAX12::dataPull(int ID, int address){
    		return -1;
    	}
    	*/
-   	int ec = send(ID, packetLength, parameters, AX_INS_Read);
+   	int ec = send(ID, packet_len, parameters, INS_READ);
 
    	delete[] parameters;
    	
