@@ -162,7 +162,7 @@ int DnxHAL::setID(int ID, int newID){
 
 
 // Read Value from Control Table
-int DnxHAL::getValue(int ID, int address){
+int DnxHAL::readValue(int ID, int address){
     return dataPull(ID, address);
 }
 

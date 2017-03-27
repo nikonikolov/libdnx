@@ -40,40 +40,40 @@ public:
 
     // Define the type for the constructor argument
 #if DNX_PLATFORM_MBED
-    struct Port_t
-    {
-        Port_t(PinName tx_in, PinName rx_in) : tx(tx_in), rx(rx_in) {}
-        PinName tx;
-        PinName rx;
-    };
-    typedef mbed::Serial* PortPtr_t;
+  struct Port_t
+  {
+      Port_t(PinName tx_in, PinName rx_in) : tx(tx_in), rx(rx_in) {}
+      PinName tx;
+      PinName rx;
+  };
+  typedef mbed::Serial* PortPtr_t;
 #elif DNX_PLATFORM_RPI
-    typedef string Port_t;
-    typedef int PortPtr_t;
+  typedef string Port_t;
+  typedef int PortPtr_t;
 #endif
 
 	DnxHAL(const DnxHAL::Port_t& port_in, int baud_in, int return_lvl_in =1);
 	virtual ~DnxHAL();
 
-    int setID(int ID, int newID);
-	int getValue(int ID, int address);
+  int setID(int ID, int newID);
+	int readValue(int ID, int address);
 
-    virtual int setBaud(int ID, int rate) =0;
-    virtual int setReturnLevel(int ID, int lvl) =0;
-    virtual int setLED(int ID, int colour) =0; 
-	virtual int setGoalPosition(int ID, int angle) =0;
-	virtual int setGoalPosition(int ID, double angle) =0;
-	virtual int setGoalVelocity(int ID, int velocity) =0;
-	virtual int setGoalTorque(int ID, int torque) =0;
-	virtual int setPunch(int ID, int punch) =0;
-    virtual int spinCCW(int ID, int torque=1023) =0;
-    virtual int spinCW(int ID, int torque=2047) =0;
-    virtual int stopSpinning(int ID) =0;
+  virtual int setBaud(int ID, int rate) =0;
+  virtual int setReturnLevel(int ID, int lvl) =0;
+  virtual int setLED(int ID, int colour) =0; 
+  virtual int setGoalPosition(int ID, int angle) =0;
+  virtual int setGoalPosition(int ID, double angle) =0;
+  virtual int setGoalVelocity(int ID, int velocity) =0;
+  virtual int setGoalTorque(int ID, int torque) =0;
+  virtual int setPunch(int ID, int punch) =0;
+  virtual int spinCCW(int ID, int torque=1023) =0;
+  virtual int spinCW(int ID, int torque=2047) =0;
+  virtual int stopSpinning(int ID) =0;
 
-    virtual int setJointMode(int ID);
-    virtual int setWheelMode(int ID);
-    virtual int enable(int ID);
-    virtual int disable(int ID);
+  virtual int setJointMode(int ID);
+  virtual int setWheelMode(int ID);
+  virtual int enable(int ID);
+  virtual int disable(int ID);
 
 protected:
 	
@@ -100,26 +100,26 @@ protected:
 	virtual int dataPull(int ID, int address) =0;
 
 	// REPLY BUFFER - SIZE 256 Overflow should never occur no matter the number of servos - you only communicate with one ID
-	// and others don't respond. ID_Broadcast does not reply as well 
-    uint8_t reply_buf[256];		
+	// and others don't respond. DNX_ID_BROADCAST does not reply as well 
+  uint8_t reply_buf[256];		
 
-    PortPtr_t port_;
-    int baud_;
-    double bit_period_;
-    int return_lvl_ = 1;
+  PortPtr_t port_;
+  int baud_;
+  double bit_period_;
+  int return_lvl_ = 1;
 
-    bool debug_ = false;
-    FILE* fp_debug_ = stdout;
+  bool debug_ = false;
+  FILE* fp_debug_ = stdout;
 };
 
 // Control table: Only matching addresses are included
-#define DNXHAL_ID 						3
+#define DNXHAL_ID 						          3
 #define DNXHAL_BAUD                     4
 #define DNXHAL_CW_LIMIT                 6
 #define DNXHAL_CCW_LIMIT                8
-#define DNXHAL_TORQUE_ENABLE    		24
+#define DNXHAL_TORQUE_ENABLE    	 	   24
 
-const uint8_t ID_Broadcast = 0xFE; // 254(0xFE) ID writes to all servos on the line
+const uint8_t DNX_ID_BROADCAST = 0xFE; // 254(0xFE) ID writes to all servos on the line
 
 template<class Type>
 inline uint8_t DnxHAL::lobyte(Type num){

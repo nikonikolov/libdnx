@@ -109,7 +109,7 @@ private:
 #define XL_HARDWARE_ERROR 50
 #define XL_PUNCH 51
 
-const uint8_t XL_ID_Broadcast = 0xFE; 	// 254(0xFE) ID writes to all servos on the line
+const uint8_t XL_ID_BROADCAST = 0xFE; 	// 254(0xFE) ID writes to all servos on the line
 
 // INSTRUCTIONS
 const uint8_t XL_INS_Ping = 0x01;         // Corresponding device ID command to check if packet reaches

@@ -47,7 +47,7 @@ int DNXServo::SetID(const int& ID, const int& newID){
 };
 
 // Read Value from Control Table
-int DNXServo::GetValue(const int& ID, const int& address){
+int DNXServo::readValue(const int& ID, const int& address){
 	return dataPull(ID, address);
 }
 

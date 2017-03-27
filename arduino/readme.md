@@ -31,7 +31,7 @@ Reading data from the RAM or the EEPROM tables of a servo:
 
 <pre><code>int address = XL_BAUD_RATE;
 int ID = 1; 					// Use the ID of the servo you want to communicate to
-int baud_rate_read = ServoXL320.GetValue(ID, address);
+int baud_rate_read = ServoXL320.readValue(ID, address);
 </code></pre>
 
 Setting the position of the servo:

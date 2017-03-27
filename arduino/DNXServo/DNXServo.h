@@ -15,13 +15,13 @@ public:
 	void EnableDebugging();
 	void DisableDebugging();
 
-    int SetID(const int& ID, const int& newID);
-	int GetValue(const int& ID, const int& address);
+  int SetID(const int& ID, const int& newID);
+	int readValue(const int& ID, const int& address);
 
-    // virtual int Ping(int ID /*=1*/) =0;		// may be possible to put implementation here
-    virtual int SetBaud	(const int& ID, const int& rate) =0;
-    virtual int SetReturnLevel(const int& ID, const int& lvl) =0;
-    virtual int SetLED(const int& ID, const int& colour) =0; 
+  // virtual int Ping(int ID /*=1*/) =0;		// may be possible to put implementation here
+  virtual int SetBaud	(const int& ID, const int& rate) =0;
+  virtual int SetReturnLevel(const int& ID, const int& lvl) =0;
+  virtual int SetLED(const int& ID, const int& colour) =0; 
 	virtual int SetGoalPosition(const int& ID, const int& angle) =0;
 	virtual int SetGoalPosition(const int& ID, const double& angle) =0;
 	virtual int SetGoalVelocity(const int& ID, const int& velocity) =0;
@@ -45,14 +45,14 @@ protected:
 	virtual int dataPush(const int& ID, const int& address, const int& value) =0;
 	virtual int dataPull(const int& ID, const int& address) =0;
 
-    unsigned char reply_buf[256];		
+  unsigned char reply_buf[256];		
 
-    HardwareSerial* port;
-    unsigned char port_num;
-    long int baud;
-    double bitPeriod;
-    int DebugLvl;
-    int ReturnLvl=1;
+  HardwareSerial* port;
+  unsigned char port_num;
+  long int baud;
+  double bitPeriod;
+  int DebugLvl;
+  int ReturnLvl=1;
 
 };
 
@@ -61,7 +61,7 @@ protected:
 #define DNXSERVO_BAUD 						4
 
 // ID
-const unsigned char ID_Broadcast = 0xFE; // 254(0xFE) ID writes to all servos on the line
+const unsigned char DNX_ID_BROADCAST = 0xFE; // 254(0xFE) ID writes to all servos on the line
 
 
 // Util

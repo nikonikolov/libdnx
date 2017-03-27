@@ -55,19 +55,19 @@ int SerialAX12::setLED(int ID, int value){
 }
 
 int SerialAX12::spinCCW(int ID, int torque/*=1023*/){
-    if(torque>1023) torque = 1023;
-    if(torque<1) torque = 1;
-    return dataPush(ID, AX_PRESENT_SPEED, torque);
+  if(torque>1023) torque = 1023;
+  if(torque<1) torque = 1;
+  return dataPush(ID, AX_PRESENT_SPEED, torque);
 }
 
 int SerialAX12::spinCW(int ID, int torque/*=2047*/){
-    if(torque>2047) torque = 2047;
-    if(torque<1024) torque = 1024;
-    return dataPush(ID, AX_PRESENT_SPEED, torque);
+  if(torque>2047) torque = 2047;
+  if(torque<1024) torque = 1024;
+  return dataPush(ID, AX_PRESENT_SPEED, torque);
 }
 
 int SerialAX12::stopSpinning(int ID){
-    return dataPush(ID, AX_PRESENT_SPEED, 0);
+  return dataPush(ID, AX_PRESENT_SPEED, 0);
 }
 
 
@@ -78,15 +78,15 @@ int SerialAX12::stopSpinning(int ID){
 
 // Dynamixel Communication 1.0 Checksum
 uint8_t SerialAX12::update_crc(uint8_t *data_blk_ptr, const uint16_t& data_blk_size) {
-    
-    uint8_t crc_accum=0;
-    
-    // Header bytes (0xFF, 0xFF) do not get included in the checksum  
-    for(uint8_t i = 2; i < data_blk_size; i++) {
-        crc_accum += data_blk_ptr[i];
-    }
-    
-    return ~(crc_accum);
+  
+  uint8_t crc_accum=0;
+  
+  // Header bytes (0xFF, 0xFF) do not get included in the checksum  
+  for(uint8_t i = 2; i < data_blk_size; i++) {
+      crc_accum += data_blk_ptr[i];
+  }
+  
+  return ~(crc_accum);
 }
 
 
@@ -186,7 +186,7 @@ int SerialAX12::send(int ID, int packetLength, uint8_t* parameters, uint8_t ins)
 	//if(debug_) fprintf(fp_debug_, "Packet written");
 	
 	// Broadcast and Reply Lvl less than 2 do not reply
-	if (ID == ID_Broadcast || return_lvl_==0 || (return_lvl_==1 && ins!=AX_INS_Read)) {
+	if (ID == DNX_ID_BROADCAST || return_lvl_==0 || (return_lvl_==1 && ins!=AX_INS_Read)) {
 		return 0;	
 	}
 
