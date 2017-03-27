@@ -16,16 +16,34 @@ FUNCTIONALITY:
 #ifndef DNXHAL_H
 #define DNXHAL_H
 
+// Include libraries
 #include <cstdint>
 #include <string>
 using std::string;
 
-// Include platform specific libraries
-#if DNX_PLATFORM_MBED
+// #include <stdio.h>
+#include <iostream>
+// using std::cout;
+// using std::endl;
+
+// =============== MBED =============== 
+#if TARGET_LIKE_MBED
 
 #include "mbed.h"
 
+// Define debug macro for mbed
+#if DEBUG_LEVEL
+#define PRINT_DEBUG(...)    printf(__VA_ARGS__);\
+                            printf("\n\r");
+#endif
+
+// =============== RASPBERRY PI =============== 
 #elif DNX_PLATFORM_RPI
+
+#if DEBUG_LEVEL
+#define PRINT_DEBUG(...)    printf(__VA_ARGS__);\
+                            printf("\n\r");
+#endif
 
 #include <wiringPi.h>
 #include <wiringSerial.h>
@@ -34,12 +52,17 @@ using std::string;
 #endif
 
 
+#if !DEBUG_LEVEL
+#define PRINT_DEBUG(...)                         
+#endif
+
+
 class DnxHAL{
 
 public:
 
     // Define the type for the constructor argument
-#if DNX_PLATFORM_MBED
+#if TARGET_LIKE_MBED
   struct Port_t
   {
       Port_t(PinName tx_in, PinName rx_in) : tx(tx_in), rx(rx_in) {}
@@ -109,7 +132,7 @@ protected:
   int return_lvl_ = 1;
 
   bool debug_ = false;
-  FILE* fp_debug_ = stdout;
+  // FILE* fp_debug_ = stdout;
 };
 
 // Control table: Only matching addresses are included

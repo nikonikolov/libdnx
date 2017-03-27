@@ -23,7 +23,8 @@ Servos which have been tested and confirmed to work:
 You should select the platform you are using when compiling the library with your code
 
 ### mbed
-Define the macro `DNX_PLATFORM_MBED` at compile time
+A normal mbed makefile which defines the macro `TARGET_LIKE_MBED` (automatically included by the online mbed compiler when exported) will 
+automatically compile for mbed
 
 ### Raspberry Pi
 Define the macro `DNX_PLATFORM_RPI` at compile time

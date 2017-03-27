@@ -5,7 +5,7 @@
 
 SerialXL320::SerialXL320(const DnxHAL::Port_t& port_in, int baud_in, int return_level_in /*=1*/) :
   DnxHAL(port_in, baud_in, return_level_in){
-  if(debug_) fprintf(fp_debug_, "XL320_SERIAL: Object attached to serial at baud rate %ld and bit period of %f us\n\r", baud_in, bit_period_);
+  PRINT_DEBUG("XL320_SERIAL: Object attached to serial at baud rate %ld and bit period of %f us", baud_in, bit_period_);
 }
 
 SerialXL320::~SerialXL320(){}
@@ -14,7 +14,7 @@ SerialXL320::~SerialXL320(){}
 // 0: 9600, 1:57600, 2:115200, 3:1Mbps
 int SerialXL320::setBaud(int ID, int rate) {
 	if ((rate > 3) || rate < 0) {
-		if(debug_) fprintf(fp_debug_, "SerialXL320: Incorrect baud rate\n\r");
+		PRINT_DEBUG("SerialXL320: Incorrect baud rate");
 		return 1;
 	}
 	return dataPush(ID, XL_BAUD_RATE, rate);
@@ -154,13 +154,13 @@ int SerialXL320::statusError(uint8_t* buf, int n) {
 	// Minimum return length
 	if (n < 11) {
 		flush();
-		if(debug_) fprintf(fp_debug_, "SerialXL320: READING CORRUPTION\n\r");
+		PRINT_DEBUG("SerialXL320: READING CORRUPTION");
 		return -1; 
 	}
 
 	if ((buf[0]!=0xFF)||(buf[1]!=0xFF)||(buf[2]!=0xFD)||(buf[3]!=0x00)) {
 		flush();
-		if(debug_) fprintf(fp_debug_, "SerialXL320: WRONG RETURN HEADER\n\r");
+		PRINT_DEBUG("SerialXL320: WRONG RETURN HEADER");
 		packetPrint(n, buf);	
 		return -1; 
 	}
@@ -168,7 +168,7 @@ int SerialXL320::statusError(uint8_t* buf, int n) {
 	int l = PacketLength(buf);
 	if (l != n) {
 		flush();
-		if(debug_) fprintf(fp_debug_, "SerialXL320: WRONG RETURN LENGTH\n\r");
+		PRINT_DEBUG("SerialXL320: WRONG RETURN LENGTH");
 		packetPrint(n, buf);	
 		return -1;
 	}
@@ -177,20 +177,20 @@ int SerialXL320::statusError(uint8_t* buf, int n) {
 	uint16_t checksum = makeword(buf[n-2],buf[n-1]);
 	if (CRC != checksum){ 
 		flush();
-		if(debug_) fprintf(fp_debug_, "SerialXL320: WRONG CHECKSUM\n\r");
+		PRINT_DEBUG("SerialXL320: WRONG CHECKSUM");
 		return -1;
 	}
 
 
 	if(buf[8]!=0 ){
-		if(debug_) fprintf(fp_debug_, "SerialXL320: STATUS ERROR \n\r");
-		if 		(buf[8] == 0x01) if(debug_) fprintf(fp_debug_, "SerialXL320: FAILED PROCESS OF INSTRUCTION\n\r");	
-		else if (buf[8] == 0x02) if(debug_) fprintf(fp_debug_, "SerialXL320: UNDEFINED INSTRUCTION OR ACTION WITHOUT REG WRITE\n\r");
-		else if (buf[8] == 0x03) if(debug_) fprintf(fp_debug_, "SerialXL320: CORRUPTED PACKAGE SENT - CRC DOES NOT MATCH\n\r");
-		else if (buf[8] == 0x04) if(debug_) fprintf(fp_debug_, "SerialXL320: VALUE TO WRITE OUT OF RANGE\n\r");
-		else if (buf[8] == 0x05) if(debug_) fprintf(fp_debug_, "SerialXL320: RECEIVED VALUE LENGTH SHORTER IN BYTES THAN REQUIRED FOR THIS ADDRESS\n\r");
-		else if (buf[8] == 0x06) if(debug_) fprintf(fp_debug_, "SerialXL320: RECEIVED VALUE LENGTH LONGER IN BYTES THAN REQUIRED FOR THIS ADDRESS\n\r");
-		else if (buf[8] == 0x07) if(debug_) fprintf(fp_debug_, "SerialXL320: READ_ONLY OR WRITE_ONLY ADDRESS\n\r");
+		PRINT_DEBUG("SerialXL320: STATUS ERROR ");
+		if 		(buf[8] == 0x01) PRINT_DEBUG("SerialXL320: FAILED PROCESS OF INSTRUCTION");	
+		else if (buf[8] == 0x02) PRINT_DEBUG("SerialXL320: UNDEFINED INSTRUCTION OR ACTION WITHOUT REG WRITE");
+		else if (buf[8] == 0x03) PRINT_DEBUG("SerialXL320: CORRUPTED PACKAGE SENT - CRC DOES NOT MATCH");
+		else if (buf[8] == 0x04) PRINT_DEBUG("SerialXL320: VALUE TO WRITE OUT OF RANGE");
+		else if (buf[8] == 0x05) PRINT_DEBUG("SerialXL320: RECEIVED VALUE LENGTH SHORTER IN BYTES THAN REQUIRED FOR THIS ADDRESS");
+		else if (buf[8] == 0x06) PRINT_DEBUG("SerialXL320: RECEIVED VALUE LENGTH LONGER IN BYTES THAN REQUIRED FOR THIS ADDRESS");
+		else if (buf[8] == 0x07) PRINT_DEBUG("SerialXL320: READ_ONLY OR WRITE_ONLY ADDRESS");
 		return -1;
 	}
 
@@ -240,15 +240,15 @@ int SerialXL320::send(int ID, int packetLenght, uint8_t* parameters, uint8_t ins
 	}
 
 	// Read reply
-	if(debug_) fprintf(fp_debug_, "SerialXL320: Reading reply\n\r");
+	PRINT_DEBUG("SerialXL320: Reading reply");
 	
 	int n = read(reply_buf);
 	if (n == 0) {
-		if(debug_) fprintf(fp_debug_, "SerialXL320: Could not read status packet\n\r");
+		PRINT_DEBUG("SerialXL320: Could not read status packet");
 		return 0;
 	}
 
-	if(debug_) fprintf(fp_debug_, "SerialXL320: - Read %d bytes\n\r", n);
+	PRINT_DEBUG("SerialXL320: - Read %d bytes", n);
 
 	return statusError(reply_buf, n); // Return Error code
 }
@@ -329,7 +329,7 @@ int SerialXL320::dataPull(int ID, int address){
    	}
 
    	else{
-   		if(debug_) fprintf(fp_debug_, "SerialXL320: WRONG ID REPLIED\n\r");
+   		PRINT_DEBUG("SerialXL320: WRONG ID REPLIED");
    		return -1;
    	}
 }

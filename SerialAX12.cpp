@@ -3,7 +3,7 @@
 
 SerialAX12::SerialAX12(const DnxHAL::Port_t& port_in, int baud_in, int return_level_in /*=1*/) :
 	DnxHAL(port_in, baud_in, return_level_in){
-	if(debug_) fprintf(fp_debug_, "SerialAX12: Object attached to serial at baud rate %ld and bit period of %f us\n\r", baud_, bit_period_);
+	PRINT_DEBUG("SerialAX12: Object attached to serial at baud rate %ld and bit period of %f us", baud_, bit_period_);
 }
 
 SerialAX12::~SerialAX12(){}
@@ -13,7 +13,7 @@ SerialAX12::~SerialAX12(){}
 // 1: 1Mbps, 3: 500 000, 4: 400 000, 7: 250 000, 9: 200 000, 16: 115200, 34: 57600, 103: 19200, 207: 9600
 int SerialAX12::setBaud(int ID, int rate) {
 	if ( rate != 1 && rate != 3 && rate != 4 && rate != 7 && rate != 9 && rate != 16  && rate != 34 && rate != 103 && rate != 207 ) {
-		if(debug_) fprintf(fp_debug_, "SerialAX12: Incorrect baud rate\n\r");
+		PRINT_DEBUG("SerialAX12: Incorrect baud rate");
 		return 1;
 	}
 
@@ -101,13 +101,13 @@ int SerialAX12::statusError(uint8_t* buf, int n) {
 	// Minimum return length
 	if (n < 6) {
 		flush();
-		if(debug_) fprintf(fp_debug_, "SerialAX12: READING CORRUPTION\n\r");
+		PRINT_DEBUG("SerialAX12: READING CORRUPTION");
 		return -1; 
 	}
 
 	if ((buf[0]!=0xFF)||(buf[1]!=0xFF)) {
 		flush();
-		if(debug_) fprintf(fp_debug_, "SerialAX12: WRONG RETURN HEADER\n\r");
+		PRINT_DEBUG("SerialAX12: WRONG RETURN HEADER");
 		packetPrint(n, buf);
 		return -1; 
 	}
@@ -116,37 +116,37 @@ int SerialAX12::statusError(uint8_t* buf, int n) {
 	// The last byte does not get included in the checksum
 	if(checksum != buf[n-1]){
 		flush();
-			if(debug_) fprintf(fp_debug_, "SerialAX12: WRONG RETURN CHECKSUM\n\r");
+			PRINT_DEBUG("SerialAX12: WRONG RETURN CHECKSUM");
 			packetPrint(n, buf);
-			if(debug_) fprintf(fp_debug_, "SerialAX12: CHECKSUM READ IS %X\n\r", checksum);
+			PRINT_DEBUG("SerialAX12: CHECKSUM READ IS %X", checksum);
 		return -1;
 	}
 
 	if ( (buf[3]+4) != n ) {
 		flush();
-		if(debug_) fprintf(fp_debug_, "SerialAX12: WRONG RETURN LENGHT\n\r");
+		PRINT_DEBUG("SerialAX12: WRONG RETURN LENGHT");
 		packetPrint(n, buf);
 		return -1;
 	}
 
 	if(buf[4]!=0 ){
-		if(debug_) fprintf(fp_debug_, "SerialAX12: STATUS ERROR \n\r");
+		PRINT_DEBUG("SerialAX12: STATUS ERROR ");
 		// bit 0
-		 if ( !(buf[4] & 0x01) ) if(debug_) fprintf(fp_debug_, "SerialAX12: VOLTAGE OUT OF RANGE\n\r");	
+		 if ( !(buf[4] & 0x01) ) PRINT_DEBUG("SerialAX12: VOLTAGE OUT OF RANGE");	
 		// bit 1
-		else if ( !(buf[4] & 0x02) ) if(debug_) fprintf(fp_debug_, "SerialAX12: REQUIRED POSITION OUT OF RANGE\n\r");
+		else if ( !(buf[4] & 0x02) ) PRINT_DEBUG("SerialAX12: REQUIRED POSITION OUT OF RANGE");
 		// bit 2
-		else if ( !(buf[4] & 0x04) ) if(debug_) fprintf(fp_debug_, "SerialAX12: TEMPERATURE OUT OF RANGE\n\r");
+		else if ( !(buf[4] & 0x04) ) PRINT_DEBUG("SerialAX12: TEMPERATURE OUT OF RANGE");
 		// bit 3
-		else if ( !(buf[4] & 0x08) ) if(debug_) fprintf(fp_debug_, "SerialAX12: COMMAND OUT OF RANGE\n\r");
+		else if ( !(buf[4] & 0x08) ) PRINT_DEBUG("SerialAX12: COMMAND OUT OF RANGE");
 		// bit 4
-		else if ( !(buf[4] & 0x10) ) if(debug_) fprintf(fp_debug_, "SerialAX12: CORRUPTED PACKAGE SENT - CRC DOES NOT MATCH\n\r");
+		else if ( !(buf[4] & 0x10) ) PRINT_DEBUG("SerialAX12: CORRUPTED PACKAGE SENT - CRC DOES NOT MATCH");
 		// bit 5
-		else if ( !(buf[4] & 0x20) ) if(debug_) fprintf(fp_debug_, "SerialAX12: LOAD OUT OF RANGE\n\r");
+		else if ( !(buf[4] & 0x20) ) PRINT_DEBUG("SerialAX12: LOAD OUT OF RANGE");
 		// bit 6
-		else if ( !(buf[4] & 0x40) ) if(debug_) fprintf(fp_debug_, "SerialAX12: UNDEFINED OR MISSING COMMAND\n\r");
+		else if ( !(buf[4] & 0x40) ) PRINT_DEBUG("SerialAX12: UNDEFINED OR MISSING COMMAND");
 		// bit 7
-		else if ( !(buf[4] & 0x80) ) if(debug_) fprintf(fp_debug_, "SerialAX12: GLITCH\n\r");
+		else if ( !(buf[4] & 0x80) ) PRINT_DEBUG("SerialAX12: GLITCH");
 		return -1;
 	}
 
@@ -183,7 +183,7 @@ int SerialAX12::send(int ID, int packetLength, uint8_t* parameters, uint8_t ins)
 
 	// Transmit
 	write(buf, packetLength+6);
-	//if(debug_) fprintf(fp_debug_, "Packet written");
+	//PRINT_DEBUG("Packet written");
 	
 	// Broadcast and Reply Lvl less than 2 do not reply
 	if (ID == DNX_ID_BROADCAST || return_lvl_==0 || (return_lvl_==1 && ins!=AX_INS_Read)) {
@@ -192,16 +192,16 @@ int SerialAX12::send(int ID, int packetLength, uint8_t* parameters, uint8_t ins)
 
 	
 	// Read reply
-	if(debug_) fprintf(fp_debug_, "SerialAX12: Reading reply\n\r");	
+	PRINT_DEBUG("SerialAX12: Reading reply");	
 
 	int n = read(reply_buf);
 	if (n == 0) {
-		if(debug_) fprintf(fp_debug_, "SerialAX12: Could not process status packet - zero bytes read\n\r");
+		PRINT_DEBUG("SerialAX12: Could not process status packet - zero bytes read");
 		//throw NoBytesRead();
 		return 0;
 	}
 
-	if(debug_) fprintf(fp_debug_, "SerialAX12: - Read %d bytes\n\r", n);
+	PRINT_DEBUG("SerialAX12: - Read %d bytes", n);
 
 	return statusError(reply_buf, n); // Return Error code
 }
@@ -267,7 +267,7 @@ int SerialAX12::dataPull(int ID, int address){
 	   	ec = send(ID, packetLength, parameters, AX_INS_Read);
    	}
    	catch(NoBytesRead& e){
-   		if(debug_) fprintf(fp_debug_, "SerialAX12: Exception %s\n\r", e.what());
+   		PRINT_DEBUG("SerialAX12: Exception %s", e.what());
 	   	delete[] parameters;
    		return -1;
    	}
@@ -287,7 +287,7 @@ int SerialAX12::dataPull(int ID, int address){
    	}
 
    	else{
-   		if(debug_) fprintf(fp_debug_, "SerialAX12: WRONG ID %X REPLIED\n\r", reply_buf[2]);
+   		PRINT_DEBUG("SerialAX12: WRONG ID %X REPLIED", reply_buf[2]);
    		return -1;
    	}
 }
