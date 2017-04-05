@@ -66,21 +66,23 @@ int DnxHAL::read(uint8_t* buf, int nMax /* =255 */) {           //check readByte
 
 DnxHAL::DnxHAL(const DnxHAL::Port_t& port_in, int baud_in, int return_lvl_in /*=1*/) :
     port_(serialOpen(port_in.c_str(), baud_in)), baud_(baud_in), bit_period_(1000000.0/baud_in), return_lvl_(return_lvl_in) {
-
+    
     if(baud_ > 230400){
         PRINT_DEBUG("Baud rate more than 230400 not supported");
         exit(EXIT_FAILURE);
     }
 
+    PRINT_DEBUG("Constructor 1");
+    
     if(port_ < 0){
         PRINT_DEBUG("Unable to open serial device %s: %s", port_in.c_str(), errno);
         exit(EXIT_FAILURE);
     }
-
+     
     if (wiringPiSetup() == -1){
         PRINT_DEBUG("Unable to start wiringPi: %s", errno);
         exit(EXIT_FAILURE);
-    }
+    }    
 }
 
 DnxHAL::~DnxHAL(){

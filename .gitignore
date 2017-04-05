@@ -2,3 +2,6 @@
 *.d
 !mbed/*.o
 !mbed/*.d
+*.swp
+*.swp~
+

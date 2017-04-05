@@ -26,6 +26,8 @@ using std::string;
 // using std::cout;
 // using std::endl;
 
+#define DEBUG_LEVEL 1
+
 // =============== MBED =============== 
 #if TARGET_LIKE_MBED
 
@@ -42,7 +44,7 @@ using std::string;
 
 #if DEBUG_LEVEL
 #define PRINT_DEBUG(...)    printf(__VA_ARGS__);\
-                            printf("\n\r");
+                            printf("\n");
 #endif
 
 #include <wiringPi.h>
