@@ -55,8 +55,8 @@ int SerialAX12::setLED(int ID, int value){
 }
 
 int SerialAX12::spinCCW(int ID, int torque/*=1023*/){
-  if(torque>1023) torque = 1023;
-  if(torque<1) torque = 1;
+  if      (torque>1023) torque = 1023;
+  else if (torque<1)    torque = 1;
   return dataPush(ID, AX_GOAL_VELOCITY, torque);
   // return dataPush(ID, AX_PRESENT_SPEED, torque);
 }
@@ -138,22 +138,38 @@ int SerialAX12::statusError(uint8_t* buf, int n) {
 	if(buf[4]!=0 ){
 		PRINT_DEBUG("SerialAX12: STATUS ERROR ");
 		// bit 0
-		 if ( !(buf[4] & 0x01) )     PRINT_DEBUG("SerialAX12: VOLTAGE OUT OF RANGE");	
-		// bit 1
-		else if ( !(buf[4] & 0x02) ) PRINT_DEBUG("SerialAX12: REQUIRED POSITION OUT OF RANGE");
-		// bit 2
-		else if ( !(buf[4] & 0x04) ) PRINT_DEBUG("SerialAX12: TEMPERATURE OUT OF RANGE");
-		// bit 3
-		else if ( !(buf[4] & 0x08) ) PRINT_DEBUG("SerialAX12: COMMAND OUT OF RANGE");
-		// bit 4
-		else if ( !(buf[4] & 0x10) ) PRINT_DEBUG("SerialAX12: CORRUPTED PACKAGE SENT - CRC DOES NOT MATCH");
-		// bit 5
-		else if ( !(buf[4] & 0x20) ) PRINT_DEBUG("SerialAX12: LOAD OUT OF RANGE");
-		// bit 6
-		else if ( !(buf[4] & 0x40) ) PRINT_DEBUG("SerialAX12: UNDEFINED OR MISSING COMMAND");
-		// bit 7
-		else if ( !(buf[4] & 0x80) ) PRINT_DEBUG("SerialAX12: GLITCH");
-		return -1;
+		 if ( !(buf[4] & 0x01) )     {
+      PRINT_DEBUG("SerialAX12: VOLTAGE OUT OF RANGE");	
+		}
+    // bit 1
+		else if ( !(buf[4] & 0x02) ) {
+      PRINT_DEBUG("SerialAX12: REQUIRED POSITION OUT OF RANGE");
+		}
+    // bit 2
+		else if ( !(buf[4] & 0x04) ) {
+      PRINT_DEBUG("SerialAX12: TEMPERATURE OUT OF RANGE");
+		}
+    // bit 3
+		else if ( !(buf[4] & 0x08) ) {
+      PRINT_DEBUG("SerialAX12: COMMAND OUT OF RANGE");
+		}
+    // bit 4
+		else if ( !(buf[4] & 0x10) ) {
+      PRINT_DEBUG("SerialAX12: CORRUPTED PACKAGE SENT - CRC DOES NOT MATCH");
+		}
+    // bit 5
+		else if ( !(buf[4] & 0x20) ) {
+      PRINT_DEBUG("SerialAX12: LOAD OUT OF RANGE");
+		}
+    // bit 6
+		else if ( !(buf[4] & 0x40) ) {
+      PRINT_DEBUG("SerialAX12: UNDEFINED OR MISSING COMMAND");
+		}
+    // bit 7
+		else if ( !(buf[4] & 0x80) ) {
+      PRINT_DEBUG("SerialAX12: GLITCH");
+		}
+    return -1;
 	}
 
 	return 0;
