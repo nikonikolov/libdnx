@@ -32,6 +32,9 @@ FRAMEWORK:
 class SerialAX12 : public DnxHAL{
  
 public:
+
+  static const uint8_t AX_ID_BROADCAST   = 0xFE;     // 254(0xFE) ID writes to all servos on the line
+
    
   SerialAX12(const DnxHAL::Port_t& port_in, int baud_in, int return_level_in =1);
   ~SerialAX12();
@@ -52,6 +55,15 @@ public:
   int stopCWSpin(int ID);
 
 private:
+
+  // INSTRUCTIONS
+  static const uint8_t AX_INS_PING       = 0x01;     // Corresponding device ID command to check if packet reaches
+  static const uint8_t AX_INS_READ       = 0x02;     // Read command
+  static const uint8_t AX_INS_WRITE      = 0x03;     // Write command
+  static const uint8_t AX_INS_REGWRITE   = 0x04;     // When receiving a write command packet data is not immediately written instead it goes into standby momentarily until action command arrives
+  static const uint8_t AX_INS_ACTION     = 0x05;     // Go command for Reg Write
+  static const uint8_t AX_INS_FACTORY    = 0x06;     // Reset All data to factory default settings
+  static const uint8_t AX_INS_SYNCWRITE  = 0x83;     // Write data from the same location and same size for multiple devices simultaneously
 
   uint8_t update_crc(uint8_t *data_blk_ptr, const uint16_t& data_blk_size);
 
@@ -103,15 +115,5 @@ private:
 #define AX_EEPROM_LOCK              47
 #define AX_PUNCH                    48
 
-const uint8_t AX_ID_BROADCAST = 0xFE;       // 254(0xFE) ID writes to all servos on the line
-
-// INSTRUCTIONS
-const uint8_t AX_INS_PING       = 0x01;     // Corresponding device ID command to check if packet reaches
-const uint8_t AX_INS_READ       = 0x02;     // Read command
-const uint8_t AX_INS_WRITE      = 0x03;     // Write command
-const uint8_t AX_INS_REGWRITE   = 0x04;     // When receiving a write command packet data is not immediately written instead it goes into standby momentarily until action command arrives
-const uint8_t AX_INS_ACTION     = 0x05;     // Go command for Reg Write
-const uint8_t AX_INS_FACTORY    = 0x06;     // Reset All data to factory default settings
-const uint8_t AX_INS_SYNCWRITE  = 0x83;     // Write data from the same location and same size for multiple devices simultaneously
 
 #endif  // SERIALAX12_H

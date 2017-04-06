@@ -58,14 +58,12 @@ int SerialAX12::spinCCW(int ID, int torque/*=1023*/){
   if      (torque>1023) torque = 1023;
   else if (torque<1)    torque = 1;
   return dataPush(ID, AX_GOAL_VELOCITY, torque);
-  // return dataPush(ID, AX_PRESENT_SPEED, torque);
 }
 
 int SerialAX12::spinCW(int ID, int torque/*=2047*/){
   if(torque>2047) torque = 2047;
   if(torque<1024) torque = 1024;
   return dataPush(ID, AX_GOAL_VELOCITY, torque);
-  // return dataPush(ID, AX_PRESENT_SPEED, torque);
 }
 
 int SerialAX12::stopCCWSpin(int ID){
@@ -85,7 +83,7 @@ int SerialAX12::stopCWSpin(int ID){
 // Dynamixel Communication 1.0 Checksum
 uint8_t SerialAX12::update_crc(uint8_t *data_blk_ptr, const uint16_t& data_blk_size) {
   
-  uint8_t crc_accum=0;
+  uint8_t crc_accum = 0;
   
   // Header bytes (0xFF, 0xFF) do not get included in the checksum  
   for(uint8_t i = 2; i < data_blk_size; i++) {

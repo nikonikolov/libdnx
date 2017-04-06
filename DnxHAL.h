@@ -21,11 +21,11 @@ FUNCTIONALITY:
 #include <string>
 using std::string;
 
-#include <iostream>
 
 #define DEBUG_LEVEL 1
 
-// =============== MBED =============== 
+
+// =========================================== MBED =========================================== 
 #if TARGET_LIKE_MBED
 
 #include "mbed.h"
@@ -36,7 +36,8 @@ using std::string;
                             printf("\n\r");
 #endif
 
-// =============== RASPBERRY PI =============== 
+
+// =========================================== RASPBERRY PI =========================================== 
 #elif DNX_PLATFORM_RPI
 
 #if DEBUG_LEVEL
@@ -53,16 +54,32 @@ using std::string;
 #endif
 
 
+// =========================================== PLATFORM INDEPENDENT =========================================== 
+
+
 #if !DEBUG_LEVEL
 #define PRINT_DEBUG(...)                         
 #endif
+
+
+
+// Control table: Only matching addresses are included
+#define DNXHAL_ID                       3
+#define DNXHAL_BAUD                     4
+#define DNXHAL_CW_LIMIT                 6
+#define DNXHAL_CCW_LIMIT                8
+#define DNXHAL_TORQUE_ENABLE            24
+
 
 
 class DnxHAL{
 
 public:
 
-    // Define the type for the constructor argument
+  // ID to use to write to all servos on the line
+  static const uint8_t DNX_ID_BROADCAST  = 0xFE; 
+
+  // Define the type for the constructor argument
 #if TARGET_LIKE_MBED
   struct Port_t
   {
@@ -97,6 +114,7 @@ public:
   virtual int stopCCWSpin(int ID) =0;
   virtual int stopCWSpin(int ID) =0;
 
+  // Changing modes and enabling
   virtual int setJointMode(int ID);
   virtual int setWheelMode(int ID);
   virtual int enable(int ID);
@@ -104,12 +122,14 @@ public:
 
 protected:
   
+  static const int REPLY_BUF_SIZE = 256;
+
   template<class Type>
-  inline uint8_t lobyte(Type num);
+  inline static uint8_t lobyte(Type num);
   template<class Type>
-  inline uint8_t hibyte(Type num);
+  inline static uint8_t hibyte(Type num);
   template<class T1, class T2>
-  inline uint16_t makeword(T1 num1, T2 num2);
+  inline static uint16_t makeword(T1 num1, T2 num2);
 
   void flush();
   void write(uint8_t* buf, int n);
@@ -126,27 +146,18 @@ protected:
   virtual int dataPush(int ID, int address, int value) =0;
   virtual int dataPull(int ID, int address) =0;
 
-  // REPLY BUFFER - SIZE 256 Overflow should never occur no matter the number of servos - you only communicate with one ID
-  // and others don't respond. DNX_ID_BROADCAST does not reply as well 
-  uint8_t reply_buf[256];    
+  // Buffer to store reply packets. Size of 256 is extra safe since overflow will never occur no 
+  // matter the number of servos - you only communicate with one ID and others don't respond. 
+  // Servos also never reply to DNX_ID_BROADCAST commands 
+  uint8_t   reply_buf[REPLY_BUF_SIZE];    
 
   PortPtr_t port_;
-  int baud_;
-  double bit_period_;
-  int return_lvl_ = 1;
+  int       baud_;
+  double    bit_period_;
+  int       return_lvl_ = 1;
 
-  bool debug_ = false;
-  // FILE* fp_debug_ = stdout;
 };
 
-// Control table: Only matching addresses are included
-#define DNXHAL_ID                       3
-#define DNXHAL_BAUD                     4
-#define DNXHAL_CW_LIMIT                 6
-#define DNXHAL_CCW_LIMIT                8
-#define DNXHAL_TORQUE_ENABLE            24
-
-const uint8_t DNX_ID_BROADCAST = 0xFE; // 254(0xFE) ID writes to all servos on the line
 
 template<class Type>
 inline uint8_t DnxHAL::lobyte(Type num){

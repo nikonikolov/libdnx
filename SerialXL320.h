@@ -4,20 +4,20 @@ Dynamixel Communication Protocol 2.0 - implements communication for XL-320 servo
 ===========================================================================================
 
 FUNCTIONALITY:
-	1. Connects to a Serial Port
-	2. Does not represent a single servo, rather represents a port and the associated protocol
-	3. 
+  1. Connects to a Serial Port
+  2. Does not represent a single servo, rather represents a port and the associated protocol
+  3. 
 
 -------------------------------------------------------------------------------------------
 
 PROTOCOL SUPPORT:
-	1. Does not supoort all features of the protocol
-	2. Only the basic features needed to control a single servo supported
+  1. Does not supoort all features of the protocol
+  2. Only the basic features needed to control a single servo supported
 
 -------------------------------------------------------------------------------------------
 
 FRAMEWORK:
-	1. Needs a Servo ID and corresponding value to be passed for the function being performed
+  1. Needs a Servo ID and corresponding value to be passed for the function being performed
 
 -------------------------------------------------------------------------------------------
 
@@ -32,42 +32,42 @@ FRAMEWORK:
 class SerialXL320 : public DnxHAL {
  
 public:
- 	
-	SerialXL320(const DnxHAL::Port_t& port_in, int baud_in, int return_lvl_in=1);
-    ~SerialXL320();
-    
-    int setBaud(int ID, int rate);
-    int setReturnLevel(int ID, int lvl);
+  
+  SerialXL320(const DnxHAL::Port_t& port_in, int baud_in, int return_lvl_in=1);
+  ~SerialXL320();
 
-	int setGoalPosition(int ID, double angle);
-	int setGoalPosition(int ID, int angle);
-	int setGoalVelocity(int ID, int velocity);
-	int setGoalTorque(int ID, int torque);
-	int setPunch(int ID, int punch);			// Sets the current to drive the motors
-    int setLED(int ID, int colour);
-    
-    int setP(int ID, int value);
-	int setI(int ID, int value);
-	int setD(int ID, int value);
+  int setBaud(int ID, int rate);
+  int setReturnLevel(int ID, int lvl);
 
-    int spinCCW(int ID, int torque=1023);
-    int spinCW(int ID, int torque=2047);
-    int stopSpinning(int ID);
+  int setGoalPosition(int ID, double angle);
+  int setGoalPosition(int ID, int angle);
+  int setGoalVelocity(int ID, int velocity);
+  int setGoalTorque(int ID, int torque);
+  int setPunch(int ID, int punch);        // Sets the current to drive the motors
+  int setLED(int ID, int colour);
+
+  int setP(int ID, int value);
+  int setI(int ID, int value);
+  int setD(int ID, int value);
+
+  int spinCCW(int ID, int torque=1023);
+  int spinCW(int ID, int torque=2047);
+  int stopSpinning(int ID);
 
 private:
-	
-	uint16_t update_crc(uint16_t crc_accum, uint8_t *data_blk_ptr, const uint16_t& data_blk_size);
-	int PacketLength(uint8_t* buf);				// Returns length of packet
+  
+  uint16_t update_crc(uint16_t crc_accum, uint8_t *data_blk_ptr, const uint16_t& data_blk_size);
+  int PacketLength(uint8_t* buf);        // Returns length of packet
 
-	int getAddressLen(int address);				// Returns length of an address in the Motor Control Table
-	int statusError(uint8_t* buf, int n);
-	int send(int ID, int bytes, uint8_t* parameters, uint8_t ins);
+  int getAddressLen(int address);        // Returns length of an address in the Motor Control Table
+  int statusError(uint8_t* buf, int n);
+  int send(int ID, int bytes, uint8_t* parameters, uint8_t ins);
 
-	int dataPack(uint8_t ins, uint8_t ** parameters, int address, int value =0);
-	int dataPush(int ID, int address, int value);
-	int dataPull(int ID, int address);
+  int dataPack(uint8_t ins, uint8_t ** parameters, int address, int value =0);
+  int dataPush(int ID, int address, int value);
+  int dataPull(int ID, int address);
     
-	static const uint8_t TWO_BYTE_ADDRESSES[11];
+  static const uint8_t TWO_BYTE_ADDRESSES[11];
 };
 
 // EEPROM 
@@ -109,7 +109,7 @@ private:
 #define XL_HARDWARE_ERROR 50
 #define XL_PUNCH 51
 
-const uint8_t XL_ID_BROADCAST = 0xFE; 	// 254(0xFE) ID writes to all servos on the line
+const uint8_t XL_ID_BROADCAST = 0xFE;     // 254(0xFE) ID writes to all servos on the line
 
 // INSTRUCTIONS
 const uint8_t XL_INS_Ping = 0x01;         // Corresponding device ID command to check if packet reaches
