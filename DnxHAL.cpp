@@ -60,6 +60,16 @@ int DnxHAL::read(uint8_t* buf, int nMax /* =255 */) {           //check readByte
     return n;
 }
 
+
+int DnxHAL::setWheelMode(int ID){
+    dataPush(ID, DNXHAL_CW_LIMIT, 0);
+    wait_us(1000);
+    dataPush(ID, DNXHAL_CCW_LIMIT, 0);
+    return 0;
+}
+
+
+
 /* ============================================= RASPBERRY PI - PLATFORM SPECIFIC METHODS ============================================= */
 #elif DNX_PLATFORM_RPI
 
@@ -125,7 +135,7 @@ int DnxHAL::read(uint8_t* buf, int nMax /* =255 */) {
             timeout = 0;
         }
         else{
-            delay(bit_period_);                                                                 
+            usleep(bit_period_);                                                                 
             timeout++;      
         }                                                           
     }
@@ -133,24 +143,28 @@ int DnxHAL::read(uint8_t* buf, int nMax /* =255 */) {
     return n;
 }
 
+
+int DnxHAL::setWheelMode(int ID){
+    dataPush(ID, DNXHAL_CW_LIMIT, 0);
+    usleep(1000);
+    dataPush(ID, DNXHAL_CCW_LIMIT, 0);
+    return 0;
+}
+
+
 #endif
 
 /* ============================================= PLATFORM INDEPENDENT METHODS ============================================= */
 
 int DnxHAL::enable(int ID){
     return dataPush(ID, DNXHAL_TORQUE_ENABLE, 1);
-};
+}
 
 
 int DnxHAL::disable(int ID){
     return dataPush(ID, DNXHAL_TORQUE_ENABLE, 0);
-};
-
-
-int DnxHAL::setWheelMode(int ID){
-    dataPush(ID, DNXHAL_CW_LIMIT, 0);
-    return dataPush(ID, DNXHAL_CCW_LIMIT, 0);
 }
+
 
 int DnxHAL::setJointMode(int ID){
     return dataPush(ID, DNXHAL_CCW_LIMIT, 1024);
@@ -159,7 +173,7 @@ int DnxHAL::setJointMode(int ID){
 // SetID
 int DnxHAL::setID(int ID, int newID){
     return dataPush(ID, DNXHAL_ID, newID);
-};
+}
 
 
 // Read Value from Control Table

@@ -57,17 +57,23 @@ int SerialAX12::setLED(int ID, int value){
 int SerialAX12::spinCCW(int ID, int torque/*=1023*/){
   if(torque>1023) torque = 1023;
   if(torque<1) torque = 1;
-  return dataPush(ID, AX_PRESENT_SPEED, torque);
+  return dataPush(ID, AX_GOAL_VELOCITY, torque);
+  // return dataPush(ID, AX_PRESENT_SPEED, torque);
 }
 
 int SerialAX12::spinCW(int ID, int torque/*=2047*/){
   if(torque>2047) torque = 2047;
   if(torque<1024) torque = 1024;
-  return dataPush(ID, AX_PRESENT_SPEED, torque);
+  return dataPush(ID, AX_GOAL_VELOCITY, torque);
+  // return dataPush(ID, AX_PRESENT_SPEED, torque);
 }
 
-int SerialAX12::stopSpinning(int ID){
+int SerialAX12::stopCCWSpin(int ID){
   return dataPush(ID, AX_PRESENT_SPEED, 0);
+}
+
+int SerialAX12::stopCWSpin(int ID){
+  return dataPush(ID, AX_PRESENT_SPEED, 1024);
 }
 
 
@@ -132,7 +138,7 @@ int SerialAX12::statusError(uint8_t* buf, int n) {
 	if(buf[4]!=0 ){
 		PRINT_DEBUG("SerialAX12: STATUS ERROR ");
 		// bit 0
-		 if ( !(buf[4] & 0x01) ) PRINT_DEBUG("SerialAX12: VOLTAGE OUT OF RANGE");	
+		 if ( !(buf[4] & 0x01) )     PRINT_DEBUG("SerialAX12: VOLTAGE OUT OF RANGE");	
 		// bit 1
 		else if ( !(buf[4] & 0x02) ) PRINT_DEBUG("SerialAX12: REQUIRED POSITION OUT OF RANGE");
 		// bit 2
@@ -186,7 +192,7 @@ int SerialAX12::send(int ID, int packetLength, uint8_t* parameters, uint8_t ins)
 	//PRINT_DEBUG("Packet written");
 	
 	// Broadcast and Reply Lvl less than 2 do not reply
-	if (ID == DNX_ID_BROADCAST || return_lvl_==0 || (return_lvl_==1 && ins!=AX_INS_Read)) {
+	if (ID == DNX_ID_BROADCAST || return_lvl_==0 || (return_lvl_==1 && ins!=AX_INS_READ)) {
 		return 0;	
 	}
 
@@ -215,18 +221,18 @@ int SerialAX12::dataPack(uint8_t ins, uint8_t ** parameters, int address, int va
 	int adrl = getAddressLen(address);
 
 	int size;
-	if (ins == AX_INS_Write) size = adrl+1;
-	else size = 2;
+	if (ins == AX_INS_WRITE) size = adrl+1;
+	else                     size = 2;
 
 	data = new uint8_t[size];
 	data[0] = lobyte(address);
 	
-	if (ins == AX_INS_Read){
+	if (ins == AX_INS_READ){
 		
 		data[1] = lobyte(adrl);	
 	}
 
-	if (ins == AX_INS_Write){
+	if (ins == AX_INS_WRITE){
 
 		data[adrl] = hibyte(value);
 		data[1] = lobyte(value);			// if adrl is 1, data[2] will be overwritten and again the correct packet will be sent
@@ -243,13 +249,13 @@ int SerialAX12::dataPush(int ID, int address, int value){
 	flush(); // Flush reply for safety															
 	
 	uint8_t* parameters;
-    int packetLength = dataPack(AX_INS_Write, &parameters, address, value);
+  int packetLength = dataPack(AX_INS_WRITE, &parameters, address, value);
 
-    int ec = send(ID, packetLength, parameters, AX_INS_Write);
-   	
-   	delete[] parameters;
+  int ec = send(ID, packetLength, parameters, AX_INS_WRITE);
+ 	
+ 	delete[] parameters;
 
-   	return ec;
+ 	return ec;
 }
 
 
@@ -258,38 +264,38 @@ int SerialAX12::dataPull(int ID, int address){
 	flush(); // Flush reply	for safety														
 	
 	uint8_t* parameters;
-    int packetLength = dataPack(AX_INS_Read, &parameters, address);
+  int packetLength = dataPack(AX_INS_READ, &parameters, address);
 
-    int size = parameters[1];
-   	/*
-   	int ec;
-   	try{
-	   	ec = send(ID, packetLength, parameters, AX_INS_Read);
-   	}
-   	catch(NoBytesRead& e){
-   		PRINT_DEBUG("SerialAX12: Exception %s", e.what());
-	   	delete[] parameters;
-   		return -1;
-   	}
-   	*/
-   	int ec = send(ID, packetLength, parameters, AX_INS_Read);
-
+  int size = parameters[1];
+ 	/*
+ 	int ec;
+ 	try{
+   	ec = send(ID, packetLength, parameters, AX_INS_READ);
+ 	}
+ 	catch(NoBytesRead& e){
+ 		PRINT_DEBUG("SerialAX12: Exception %s", e.what());
    	delete[] parameters;
-   	
-   	if (ec != 0) {
-   		return ec;
-   	}
+ 		return -1;
+ 	}
+ 	*/
+ 	int ec = send(ID, packetLength, parameters, AX_INS_READ);
 
-	//packetPrint(15, buf);
-	if ( ((uint8_t)ID) == reply_buf[2] ){
-   		if (size==2) return (unsigned int)makeword(reply_buf[5], reply_buf[6]);
-   		else return (unsigned int)reply_buf[5];	
-   	}
+ 	delete[] parameters;
+ 	
+ 	if (ec != 0) {
+ 		return ec;
+ 	}
 
-   	else{
-   		PRINT_DEBUG("SerialAX12: WRONG ID %X REPLIED", reply_buf[2]);
-   		return -1;
-   	}
+//packetPrint(15, buf);
+  if ( ((uint8_t)ID) == reply_buf[2] ){
+ 		if (size==2) return (unsigned int)makeword(reply_buf[5], reply_buf[6]);
+ 		else         return (unsigned int)reply_buf[5];	
+ 	}
+
+ 	else{
+ 		PRINT_DEBUG("SerialAX12: WRONG ID %X REPLIED", reply_buf[2]);
+ 		return -1;
+ 	}
 }
 
 

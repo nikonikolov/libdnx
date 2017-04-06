@@ -45,9 +45,11 @@ using std::string;
                             printf("\n\r");
 #endif
 
+
+#include <cstdlib>          // exits
+#include <unistd.h>         // sleep functionality
 #include <wiringPi.h>
-#include <wiringSerial.h>
-#include <cstdlib>
+#include <wiringSerial.h> 
 
 #endif
 
@@ -89,9 +91,12 @@ public:
   virtual int setGoalVelocity(int ID, int velocity) =0;
   virtual int setGoalTorque(int ID, int torque) =0;
   virtual int setPunch(int ID, int punch) =0;
+  
+  // Wheel Mode commands
   virtual int spinCCW(int ID, int torque=1023) =0;
   virtual int spinCW(int ID, int torque=2047) =0;
-  virtual int stopSpinning(int ID) =0;
+  virtual int stopCCWSpin(int ID) =0;
+  virtual int stopCWSpin(int ID) =0;
 
   virtual int setJointMode(int ID);
   virtual int setWheelMode(int ID);
