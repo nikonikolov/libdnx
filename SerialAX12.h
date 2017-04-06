@@ -4,20 +4,20 @@ Dynamixel Communication Protocol 1.0 - implements communication for AX-12A servo
 ===========================================================================================
 
 FUNCTIONALITY:
-	1. Connects to a Serial Port
-	2. Does not represent a single servo, rather represents a port and the associated protocol
-	3. 
+  1. Connects to a Serial Port
+  2. Does not represent a single servo, rather represents a port and the associated protocol
+  3. 
 
 -------------------------------------------------------------------------------------------
 
 PROTOCOL SUPPORT:
-	1. Does not supoort all features of the protocol
-	2. Only the basic features needed to control a single servo supported
+  1. Does not supoort all features of the protocol
+  2. Only the basic features needed to control a single servo supported
 
 -------------------------------------------------------------------------------------------
 
 FRAMEWORK:
-	1. Needs a Servo ID and corresponding value to be passed for the function being performed
+  1. Needs a Servo ID and corresponding value to be passed for the function being performed
 
 -------------------------------------------------------------------------------------------
 
@@ -32,37 +32,38 @@ FRAMEWORK:
 class SerialAX12 : public DnxHAL{
  
 public:
- 	
-	SerialAX12(const DnxHAL::Port_t& port_in, int baud_in, int return_level_in =1);
-	~SerialAX12();
+   
+  SerialAX12(const DnxHAL::Port_t& port_in, int baud_in, int return_level_in =1);
+  ~SerialAX12();
 
   int setBaud(int ID, int rate);
   int setReturnLevel(int ID, int lvl);
 
-	int setGoalPosition(int ID, double angle); 
-	int setGoalPosition(int ID, int angle);
-	int setGoalVelocity(int ID, int velocity);
-	int setGoalTorque(int ID, int torque);
-	int setPunch(int ID, int punch);
+  int setGoalPosition(int ID, double angle); 
+  int setGoalPosition(int ID, int angle);
+  int setGoalVelocity(int ID, int velocity);
+  int setGoalTorque(int ID, int torque);
+  int setPunch(int ID, int punch);
   int setLED(int ID, int colour);
 
   int spinCCW(int ID, int torque=1023);
   int spinCW(int ID, int torque=2047);
-  int stopSpinning(int ID);
+  int stopCCWSpin(int ID);
+  int stopCWSpin(int ID);
 
 private:
 
-	uint8_t update_crc(uint8_t *data_blk_ptr, const uint16_t& data_blk_size);	
+  uint8_t update_crc(uint8_t *data_blk_ptr, const uint16_t& data_blk_size);
 
-	int getAddressLen(int address);
-	int statusError(uint8_t* buf, int n);
-	int send(int ID, int packetLength, uint8_t* parameters, uint8_t ins);
+  int getAddressLen(int address);
+  int statusError(uint8_t* buf, int n);
+  int send(int ID, int packetLength, uint8_t* parameters, uint8_t ins);
 
-	int dataPack(uint8_t ins, uint8_t** parameters, int address, int value =0);
-	int dataPush(int ID, int address, int value);
-	int dataPull(int ID, int address);
-	
-	static const uint8_t TWO_BYTE_ADDRESSES[11];
+  int dataPack(uint8_t ins, uint8_t** parameters, int address, int value =0);
+  int dataPush(int ID, int address, int value);
+  int dataPull(int ID, int address);
+  
+  static const uint8_t TWO_BYTE_ADDRESSES[11];
 
 };
 
@@ -102,7 +103,7 @@ private:
 #define AX_EEPROM_LOCK              47
 #define AX_PUNCH                    48
 
-const uint8_t AX_ID_BROADCAST = 0xFE; 	// 254(0xFE) ID writes to all servos on the line
+const uint8_t AX_ID_BROADCAST = 0xFE;       // 254(0xFE) ID writes to all servos on the line
 
 // INSTRUCTIONS
 const uint8_t AX_INS_PING       = 0x01;     // Corresponding device ID command to check if packet reaches
