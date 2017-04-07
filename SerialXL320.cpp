@@ -184,14 +184,29 @@ int SerialXL320::statusError(uint8_t* buf, int n) {
 
 	if(buf[8]!=0 ){
 		PRINT_DEBUG("SerialXL320: STATUS ERROR ");
-		if 		(buf[8] == 0x01) PRINT_DEBUG("SerialXL320: FAILED PROCESS OF INSTRUCTION");	
-		else if (buf[8] == 0x02) PRINT_DEBUG("SerialXL320: UNDEFINED INSTRUCTION OR ACTION WITHOUT REG WRITE");
-		else if (buf[8] == 0x03) PRINT_DEBUG("SerialXL320: CORRUPTED PACKAGE SENT - CRC DOES NOT MATCH");
-		else if (buf[8] == 0x04) PRINT_DEBUG("SerialXL320: VALUE TO WRITE OUT OF RANGE");
-		else if (buf[8] == 0x05) PRINT_DEBUG("SerialXL320: RECEIVED VALUE LENGTH SHORTER IN BYTES THAN REQUIRED FOR THIS ADDRESS");
-		else if (buf[8] == 0x06) PRINT_DEBUG("SerialXL320: RECEIVED VALUE LENGTH LONGER IN BYTES THAN REQUIRED FOR THIS ADDRESS");
-		else if (buf[8] == 0x07) PRINT_DEBUG("SerialXL320: READ_ONLY OR WRITE_ONLY ADDRESS");
-		return -1;
+		
+    if 		  (buf[8] == 0x01) {
+      PRINT_DEBUG("SerialXL320: FAILED PROCESS OF INSTRUCTION");	
+		}
+    else if (buf[8] == 0x02) {
+      PRINT_DEBUG("SerialXL320: UNDEFINED INSTRUCTION OR ACTION WITHOUT REG WRITE");
+		}
+    else if (buf[8] == 0x03) {
+      PRINT_DEBUG("SerialXL320: CORRUPTED PACKAGE SENT - CRC DOES NOT MATCH");
+		}
+    else if (buf[8] == 0x04) {
+      PRINT_DEBUG("SerialXL320: VALUE TO WRITE OUT OF RANGE");
+		}
+    else if (buf[8] == 0x05) {
+      PRINT_DEBUG("SerialXL320: RECEIVED VALUE LENGTH SHORTER IN BYTES THAN REQUIRED FOR THIS ADDRESS");
+		}
+    else if (buf[8] == 0x06) {
+      PRINT_DEBUG("SerialXL320: RECEIVED VALUE LENGTH LONGER IN BYTES THAN REQUIRED FOR THIS ADDRESS");
+		}
+    else if (buf[8] == 0x07) {
+      PRINT_DEBUG("SerialXL320: READ_ONLY OR WRITE_ONLY ADDRESS");
+		}
+    return -1;
 	}
 
 	return 0;

@@ -9,6 +9,10 @@ Currently supported are
 - Raspberry Pi
 - Arduino
 
+## Official Library
+https://github.com/ROBOTIS-GIT/DynamixelSDK/blob/master/c%2B%2B/src/dynamixel_sdk_linux/port_handler_linux.cpp
+
+
 ## Supported servo models
 
 The library implements both `Communication1.0` and `Communication2.0` Dynamixel protocols, so ideally (possibly with some extra tuning),
