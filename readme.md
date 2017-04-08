@@ -24,11 +24,13 @@ Servos which have been tested and confirmed to work:
 
 ## Platform selection
 
-You should select the platform you are using when compiling the library with your code
+The platform should be automatically selected by the compiler you are using - either `gcc` or `arm-none-eabi-gcc`
 
-### mbed
-A normal mbed makefile which defines the macro `TARGET_LIKE_MBED` (automatically included by the online mbed compiler when exported) will 
-automatically compile for mbed
+### Platform selection issues
+In case you have any problems, make sure that you have the following macros defined by the Makefile or by the compiler, depending on the platform:
 
-### Raspberry Pi
-Define the macro `DNX_PLATFORM_RPI` at compile time
+- mbed
+You need the macro 'TARGET_LIKE_MBED'. It will usually be defined by the exported mbed makefile. Note that you must be compiling with `arm-none-eabi-gcc`.
+
+- Raspberry Pi
+You need the macro `__unix__`. It is a `gcc` macro and will be predefined by default if you are using `gcc` on a linux system.

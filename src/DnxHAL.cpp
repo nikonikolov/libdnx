@@ -72,7 +72,7 @@ int DnxHAL::setWheelMode(int ID){
 
 
 /* ============================================= RASPBERRY PI - PLATFORM SPECIFIC METHODS ============================================= */
-#elif DNX_PLATFORM_RPI
+#elif __unix__
 
 
 DnxHAL::DnxHAL(const DnxHAL::Port_t& port_in, int baud_in, int return_lvl_in /*=1*/) :

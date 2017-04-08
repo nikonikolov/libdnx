@@ -18,8 +18,6 @@ FUNCTIONALITY:
 
 // Include libraries
 #include <cstdint>
-#include <string>
-using std::string;
 
 
 #define DEBUG_LEVEL 1
@@ -38,7 +36,7 @@ using std::string;
 
 
 // =========================================== RASPBERRY PI =========================================== 
-#elif DNX_PLATFORM_RPI
+#elif __unix__
 
 #if DEBUG_LEVEL
 #define PRINT_DEBUG(...)    printf(__VA_ARGS__);\
@@ -47,9 +45,12 @@ using std::string;
 
 
 #include <cstdlib>          // exits
+#include <string>
 #include <unistd.h>         // sleep functionality
 #include <wiringPi.h>
 #include <wiringSerial.h> 
+
+using std::string;
 
 #endif
 
@@ -88,7 +89,7 @@ public:
       PinName rx;
   };
   typedef mbed::Serial* PortPtr_t;
-#elif DNX_PLATFORM_RPI
+#elif __unix__
   typedef string Port_t;
   typedef int PortPtr_t;
 #endif
