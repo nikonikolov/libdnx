@@ -67,11 +67,11 @@ int SerialAX12::spinCW(int ID, int torque/*=2047*/){
 }
 
 int SerialAX12::stopCCWSpin(int ID){
-  return dataPush(ID, AX_PRESENT_SPEED, 0);
+  return dataPush(ID, AX_GOAL_VELOCITY, 0);
 }
 
 int SerialAX12::stopCWSpin(int ID){
-  return dataPush(ID, AX_PRESENT_SPEED, 1024);
+  return dataPush(ID, AX_GOAL_VELOCITY, 1024);
 }
 
 
